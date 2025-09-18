@@ -114,10 +114,10 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "🧹 Cleaning pnpm cache..."
     pnpm store prune 2>/dev/null || echo "⚠️  pnpm not available"
-    
+
     echo "🧹 Cleaning npm cache..."
     npm cache clean --force 2>/dev/null || echo "⚠️  npm cache clean failed"
-    
+
     # Clean global caches
     echo "🧹 Cleaning global caches..."
     safe_remove "$HOME/.pnpm/.pnpm-store"
