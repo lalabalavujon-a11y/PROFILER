@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "ms-vscode.vscode-typescript-next",
+    "esbenp.prettier-vscode",
+    "ms-vscode.vscode-json",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-node-azure-pack",
+    "ms-vscode-remote.remote-containers",
+    "github.copilot",
+    "github.copilot-chat",
+    "ms-vscode.test-adapter-converter",
+    "vitest.explorer"
+  ],
+  "unwantedRecommendations": ["ms-vscode.vscode-typescript"]
+}

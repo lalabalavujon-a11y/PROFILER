@@ -1,0 +1,35 @@
+# Development Dockerfile with Node.js 22
+FROM node:22.12.0-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install development tools
+RUN apk add --no-cache curl git
+
+# Install pnpm globally
+RUN npm install -g pnpm@9.12.0
+
+# Copy package files
+COPY package.json pnpm-lock.yaml* ./
+COPY .nvmrc .node-version ./
+
+# Install all dependencies (including dev)
+RUN pnpm install
+
+# Copy application code
+COPY . .
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S profiler -u 1001
+
+# Change ownership of the app directory
+RUN chown -R profiler:nodejs /app
+USER profiler
+
+# Expose port
+EXPOSE 3000
+
+# Development command with hot reload
+CMD ["pnpm", "dev"]

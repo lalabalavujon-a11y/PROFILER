@@ -1,0 +1,46 @@
+{
+  "name": "profiler",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=22.12.0",
+    "npm": ">=10.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "test": "vitest",
+    "dev": "ts-node scripts/dev.ts",
+    "build": "tsc",
+    "start": "node dist/api/server.js",
+    "seed": "ts-node scripts/seed.ts",
+    "check-node": "node --version && echo 'Node.js version check passed'",
+    "preinstall": "node scripts/check-node-version.js",
+    "setup": "node scripts/setup-node.js"
+  },
+  "dependencies": {
+    "@langchain/langgraph": "^0.0.1",
+    "@langchain/core": "^0.2.0",
+    "@langchain/openai": "^0.2.0",
+    "@supabase/supabase-js": "^2.43.4",
+    "langsmith": "^0.1.0",
+    "axios": "^1.6.7",
+    "googleapis": "^140.0.0",
+    "google-auth-library": "^9.0.0",
+    "openai": "^4.52.0",
+    "csv-writer": "^1.6.0",
+    "express": "^4.18.0",
+    "cors": "^2.8.5",
+    "pnpm": "^10.17.0",
+    "zod": "^3.22.4",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.0",
+    "vitest": "^1.2.0"
+  },
+  "volta": {
+    "node": "22.12.0",
+    "npm": "10.8.2",
+    "pnpm": "9.12.0"
+  }
+}
