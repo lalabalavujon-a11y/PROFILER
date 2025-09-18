@@ -11,21 +11,21 @@ type AnalyticsState = z.infer<typeof schema>;
 export async function analyticsTap(state: AnalyticsState) {
   const { packet } = state;
   const startTime = Date.now();
-  
+
   // Log workflow start to LangSmith
   await logWorkflowExecution(
     packet.eventId,
-    'lead_recon_workflow_start',
+    "lead_recon_workflow_start",
     { packet },
-    { status: 'started' },
+    { status: "started" },
     0,
-    { 
+    {
       industry: packet.audience?.industry,
       deckProvider: packet.assets?.deckProvider,
       offerPrice: packet.offer?.tripwirePrice,
     }
   );
-  
+
   // Track key metrics
   const analytics = {
     workflowStartTime: startTime,
@@ -44,9 +44,9 @@ export async function analyticsTap(state: AnalyticsState) {
       commissionPct: packet.host?.commissionPct,
     },
   };
-  
+
   console.log(`📊 Analytics tracking started for event: ${packet.eventId}`);
-  
+
   return {
     ...state,
     artifacts: {

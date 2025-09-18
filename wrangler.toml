@@ -1,0 +1,49 @@
+name = "profiler-lead-recon"
+main = "dist/api/server.js"
+compatibility_date = "2024-09-18"
+compatibility_flags = ["nodejs_compat"]
+node_compat = true
+
+[env.production]
+name = "profiler-lead-recon-prod"
+route = "profiler.leadrecon.app/*"
+
+[env.staging]
+name = "profiler-lead-recon-staging"
+route = "staging.profiler.leadrecon.app/*"
+
+[env.development]
+name = "profiler-lead-recon-dev"
+
+# Environment variables (set via CLI or dashboard)
+[vars]
+NODE_ENV = "production"
+GAMMA_ENABLED = "true"
+DEFAULT_DECK_PROVIDER = "gamma"
+ENABLE_MCP_RUBE = "true"
+
+# Secrets (set via wrangler secret put)
+# OPENAI_API_KEY
+# LANGCHAIN_API_KEY  
+# GAMMA_API_KEY
+# SUPABASE_URL
+# SUPABASE_ANON_KEY
+# RUBE_API_KEY
+
+[build]
+command = "pnpm build"
+cwd = "."
+watch_dir = "."
+
+[[kv_namespaces]]
+binding = "PROFILER_KV"
+id = "profiler_kv_namespace"
+preview_id = "profiler_kv_preview"
+
+[[r2_buckets]]
+binding = "PROFILER_R2"
+bucket_name = "profiler-assets"
+preview_bucket_name = "profiler-assets-preview"
+
+[triggers]
+crons = ["0 0 * * 1"]  # Weekly analytics recap on Mondays

@@ -13,16 +13,20 @@ vi.mock("../lib/mcp-rube-integration");
 describe("Lead Recon Integration Test", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    
+
     // Mock storage upload
-    vi.spyOn(storage, "uploadBuffer").mockResolvedValue("https://cdn.example.com/test-file.csv");
-    
+    vi.spyOn(storage, "uploadBuffer").mockResolvedValue(
+      "https://cdn.example.com/test-file.csv"
+    );
+
     // Mock Gamma client
     vi.spyOn(gamma.gammaClient, "generate").mockResolvedValue({
       docId: "doc_test123",
       shareUrl: "https://gamma.app/docs/doc_test123",
     });
-    vi.spyOn(gamma.gammaClient, "export").mockResolvedValue(new Uint8Array([1, 2, 3]));
+    vi.spyOn(gamma.gammaClient, "export").mockResolvedValue(
+      new Uint8Array([1, 2, 3])
+    );
   });
 
   it("executes complete Lead Recon workflow", async () => {
@@ -70,7 +74,7 @@ describe("Lead Recon Integration Test", () => {
 
     // Verify workflow completion
     expect(result.packet.eventId).toBe("test_event_123");
-    
+
     // Verify profiler artifacts
     expect(result.artifacts.profiler).toBeDefined();
     expect(result.artifacts.profiler.segments).toBeDefined();
@@ -162,16 +166,16 @@ describe("Lead Recon Integration Test", () => {
     const testPacket = {
       eventId: "test_commissions",
       date: "2025-09-18",
-      host: { 
-        name: "Commission Test", 
-        commissionPct: 40 // 40% commission
+      host: {
+        name: "Commission Test",
+        commissionPct: 40, // 40% commission
       },
       audience: { industry: "Real Estate" },
-      offer: { 
-        tripwirePrice: 500, 
+      offer: {
+        tripwirePrice: 500,
         tripwireCredits: 1500,
         bumpEnabled: true,
-        bumpPrice: 150
+        bumpPrice: 150,
       },
       assets: { deckProvider: "gamma" },
     };
@@ -197,10 +201,10 @@ describe("Lead Recon Integration Test", () => {
       date: "2025-09-18",
       host: { name: "Funnel Test Host" },
       audience: { industry: "Agency", size: "enterprise" },
-      offer: { 
-        tripwirePrice: 997, 
+      offer: {
+        tripwirePrice: 997,
         tripwireCredits: 5000,
-        bumpEnabled: false
+        bumpEnabled: false,
       },
       assets: { deckProvider: "both" },
     };
@@ -229,7 +233,7 @@ describe("Error Handling", () => {
     };
 
     const graph = buildGraph();
-    
+
     // Should not throw, but handle gracefully
     const result = await graph.invoke({
       packet: incompletePacket,
@@ -245,7 +249,9 @@ describe("Error Handling", () => {
 
   it("continues workflow even if external API fails", async () => {
     // Mock API failure
-    vi.spyOn(storage, "uploadBuffer").mockRejectedValueOnce(new Error("Upload failed"));
+    vi.spyOn(storage, "uploadBuffer").mockRejectedValueOnce(
+      new Error("Upload failed")
+    );
 
     const testPacket = {
       eventId: "test_api_failure",
@@ -256,7 +262,7 @@ describe("Error Handling", () => {
     };
 
     const graph = buildGraph();
-    
+
     // Should handle the error and continue
     const result = await graph.invoke({
       packet: testPacket,

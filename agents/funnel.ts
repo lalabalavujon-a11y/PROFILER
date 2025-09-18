@@ -13,7 +13,7 @@ type FunnelState = z.infer<typeof schema>;
 
 export async function funnelNode(state: FunnelState) {
   const { packet, artifacts } = state;
-  
+
   // Initialize AI for funnel optimization
   const llm = new ChatOpenAI({
     modelName: "gpt-4",
@@ -23,14 +23,14 @@ export async function funnelNode(state: FunnelState) {
 
   // Generate funnel strategy and copy
   const funnelStrategy = await generateFunnelStrategy(packet, artifacts, llm);
-  
+
   // Create Stripe products and pricing
   const stripeProducts = await createStripeProducts({
     tripwirePrice: packet.offer?.tripwirePrice || 297,
     tripwireCredits: packet.offer?.tripwireCredits || 1000,
     bumpEnabled: packet.offer?.bumpEnabled || false,
     bumpPrice: packet.offer?.bumpPrice || 99,
-    hostName: packet.host?.name || 'Lead Recon',
+    hostName: packet.host?.name || "Lead Recon",
     eventId: packet.eventId,
   });
 
@@ -41,9 +41,13 @@ export async function funnelNode(state: FunnelState) {
     strategy: funnelStrategy,
     products: stripeProducts,
     branding: {
-      colors: packet.assets?.brandingPalette || ['#1f2937', '#3b82f6', '#10b981'],
+      colors: packet.assets?.brandingPalette || [
+        "#1f2937",
+        "#3b82f6",
+        "#10b981",
+      ],
       logoUrl: packet.host?.logoUrl,
-      hostName: packet.host?.name || 'Lead Recon Expert',
+      hostName: packet.host?.name || "Lead Recon Expert",
     },
     deckUrl: artifacts.deck?.providers?.[artifacts.deck?.active]?.shareUrl,
   });
@@ -61,17 +65,21 @@ export async function funnelNode(state: FunnelState) {
         conversionElements: funnelStrategy.elements,
       },
       stripe: {
-        productIds: stripeProducts.map(p => p.productId),
-        priceIds: stripeProducts.map(p => p.priceId),
+        productIds: stripeProducts.map((p) => p.productId),
+        priceIds: stripeProducts.map((p) => p.priceId),
       },
     },
   };
 }
 
-async function generateFunnelStrategy(packet: any, artifacts: any, llm: ChatOpenAI) {
+async function generateFunnelStrategy(
+  packet: any,
+  artifacts: any,
+  llm: ChatOpenAI
+) {
   const strategyPrompt = PromptTemplate.fromTemplate(`
     Create a high-converting funnel strategy for a lead recon presentation targeting {industry} businesses.
-    
+
     Context:
     - Host: {hostName}
     - Audience: {industry} ({audienceSize})
@@ -79,45 +87,45 @@ async function generateFunnelStrategy(packet: any, artifacts: any, llm: ChatOpen
     - Bump Offer: {bumpOffer}
     - Presentation Available: {hasDeck}
     - Lead Segments: {leadSegments}
-    
+
     Design a conversion-optimized funnel with:
-    
+
     1. LANDING PAGE STRATEGY:
     - Compelling headline that addresses {industry} pain points
     - Value proposition focused on lead generation ROI
     - Social proof and credibility indicators
     - Clear call-to-action for the presentation
-    
+
     2. PRESENTATION FLOW:
     - Pre-presentation engagement tactics
     - Key conversion moments during presentation
     - Urgency and scarcity elements
-    
+
     3. CHECKOUT OPTIMIZATION:
     - Pricing psychology for ${packet.offer?.tripwirePrice} offer
     - Risk reversal and guarantees
     - Bump offer positioning (if enabled)
     - Payment options and trust signals
-    
+
     4. POST-PURCHASE SEQUENCE:
     - Immediate value delivery
     - Onboarding for lead recon tools
     - Upsell opportunities
-    
+
     Provide specific copy suggestions, psychological triggers, and conversion elements.
     Focus on the unique value of AI-powered lead intelligence for {industry} businesses.
   `);
 
   const strategy = await llm.invoke(
     await strategyPrompt.format({
-      industry: packet.audience?.industry || 'Business',
-      hostName: packet.host?.name || 'Lead Recon Expert',
-      audienceSize: packet.audience?.size || 'SMB',
+      industry: packet.audience?.industry || "Business",
+      hostName: packet.host?.name || "Lead Recon Expert",
+      audienceSize: packet.audience?.size || "SMB",
       tripwireCredits: packet.offer?.tripwireCredits || 1000,
-      bumpOffer: packet.offer?.bumpEnabled 
-        ? `$${packet.offer.bumpPrice}/mo subscription` 
-        : 'Not enabled',
-      hasDeck: artifacts.deck ? 'Yes' : 'No',
+      bumpOffer: packet.offer?.bumpEnabled
+        ? `$${packet.offer.bumpPrice}/mo subscription`
+        : "Not enabled",
+      hasDeck: artifacts.deck ? "Yes" : "No",
       leadSegments: artifacts.profiler?.segments?.length || 0,
     })
   );
@@ -128,10 +136,10 @@ async function generateFunnelStrategy(packet: any, artifacts: any, llm: ChatOpen
 function parseFunnelStrategy(content: string, packet: any) {
   // Parse AI-generated strategy into structured data
   const sections = content.split(/\d+\.\s*[A-Z\s]+:/);
-  
+
   return {
     name: "AI-Optimized Lead Recon Funnel",
-    industry: packet.audience?.industry || 'Business',
+    industry: packet.audience?.industry || "Business",
     elements: {
       headline: extractHeadline(content),
       valueProposition: extractValueProposition(content),
@@ -153,12 +161,16 @@ function parseFunnelStrategy(content: string, packet: any) {
 
 function extractHeadline(content: string): string {
   const headlineMatch = content.match(/headline[^:]*:([^\.]+)/i);
-  return headlineMatch ? headlineMatch[1].trim() : "Transform Your Lead Generation with AI-Powered Intelligence";
+  return headlineMatch
+    ? headlineMatch[1].trim()
+    : "Transform Your Lead Generation with AI-Powered Intelligence";
 }
 
 function extractValueProposition(content: string): string {
   const valueMatch = content.match(/value proposition[^:]*:([^\.]+)/i);
-  return valueMatch ? valueMatch[1].trim() : "Get qualified leads, personalized messaging, and automated outreach that converts 3x better";
+  return valueMatch
+    ? valueMatch[1].trim()
+    : "Get qualified leads, personalized messaging, and automated outreach that converts 3x better";
 }
 
 function extractSocialProof(content: string): string[] {

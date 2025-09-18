@@ -14,7 +14,7 @@ type OutreachState = z.infer<typeof schema>;
 
 export async function outreachNode(state: OutreachState) {
   const { packet, artifacts } = state;
-  
+
   // Initialize AI for outreach content generation
   const llm = new ChatOpenAI({
     modelName: "gpt-4",
@@ -24,13 +24,20 @@ export async function outreachNode(state: OutreachState) {
 
   // Get lead segments from profiler
   const segments = artifacts.profiler?.segments || [];
-  
+
   // Generate personalized outreach campaigns for each segment
-  const outreachCampaigns = await generateOutreachCampaigns(segments, packet, llm);
-  
+  const outreachCampaigns = await generateOutreachCampaigns(
+    segments,
+    packet,
+    llm
+  );
+
   // Create email list with personalized content
-  const emailList = await createPersonalizedEmailList(segments, outreachCampaigns);
-  
+  const emailList = await createPersonalizedEmailList(
+    segments,
+    outreachCampaigns
+  );
+
   // Export email list as CSV
   const emailCsvBuffer = await createCSV(emailList);
   const emailsCsvUrl = await uploadBuffer(
@@ -38,10 +45,10 @@ export async function outreachNode(state: OutreachState) {
     `outreach/${packet.eventId}/personalized-emails.csv`,
     "text/csv"
   );
-  
+
   // Create ad copy document
   const adCopyDoc = `<html><body><h1>Ad Copy for ${packet.eventId}</h1><p>Generated outreach content</p></body></html>`;
-  const adCopyBuffer = new Uint8Array(Buffer.from(adCopyDoc, 'utf-8'));
+  const adCopyBuffer = new Uint8Array(Buffer.from(adCopyDoc, "utf-8"));
   const adCopyDocUrl = await uploadBuffer(
     adCopyBuffer,
     `outreach/${packet.eventId}/ad-copy.html`,
@@ -49,7 +56,7 @@ export async function outreachNode(state: OutreachState) {
   );
 
   // Initialize MCP Rube integration for automated outreach
-  if (process.env.ENABLE_MCP_RUBE === 'true') {
+  if (process.env.ENABLE_MCP_RUBE === "true") {
     const rubeClient = createMCPRubeClient();
     await rubeClient.createLeadNurturingWorkflow(packet.eventId, segments);
   }
@@ -61,58 +68,68 @@ export async function outreachNode(state: OutreachState) {
       outreach: {
         emailsCsvUrl,
         adCopyDocUrl,
-        campaigns: outreachCampaigns.map(c => ({
+        campaigns: outreachCampaigns.map((c) => ({
           segment: c.segment,
           emailCount: c.emails?.length || 0,
-          channels: ['email', 'linkedin'],
+          channels: ["email", "linkedin"],
         })),
         totalEmails: emailList.length,
-        automationEnabled: process.env.ENABLE_MCP_RUBE === 'true',
+        automationEnabled: process.env.ENABLE_MCP_RUBE === "true",
       },
     },
   };
 }
 
-async function generateOutreachCampaigns(segments: any[], packet: any, llm: ChatOpenAI) {
+async function generateOutreachCampaigns(
+  segments: any[],
+  packet: any,
+  llm: ChatOpenAI
+) {
   const campaigns = [];
-  
+
   for (const segment of segments) {
     campaigns.push({
       segment: segment.name,
       priority: segment.priority,
       leadCount: segment.leads?.length || 0,
-      emails: [{
-        subject: `AI Lead Intelligence for ${segment.name}`,
-        body: `Hi {{firstName}}, we have a solution that could help ${segment.name} businesses generate 300% more qualified leads. Interested in learning more?`,
-        segment: segment.name,
-      }],
+      emails: [
+        {
+          subject: `AI Lead Intelligence for ${segment.name}`,
+          body: `Hi {{firstName}}, we have a solution that could help ${segment.name} businesses generate 300% more qualified leads. Interested in learning more?`,
+          segment: segment.name,
+        },
+      ],
     });
   }
-  
+
   return campaigns;
 }
 
 async function createPersonalizedEmailList(segments: any[], campaigns: any[]) {
   const emailList = [];
-  
+
   for (const segment of segments) {
-    const campaign = campaigns.find(c => c.segment === segment.name);
+    const campaign = campaigns.find((c) => c.segment === segment.name);
     if (!campaign) continue;
-    
+
     const leads = segment.leads || [];
-    
-    for (const lead of leads.slice(0, 10)) { // Limit for demo
+
+    for (const lead of leads.slice(0, 10)) {
+      // Limit for demo
       emailList.push({
         leadId: lead.id,
-        firstName: lead.name?.split(' ')[0] || 'Friend',
+        firstName: lead.name?.split(" ")[0] || "Friend",
         email: lead.email,
         company: lead.company,
         segment: segment.name,
         subject: campaign.emails[0].subject,
-        body: campaign.emails[0].body.replace('{{firstName}}', lead.name?.split(' ')[0] || 'Friend'),
+        body: campaign.emails[0].body.replace(
+          "{{firstName}}",
+          lead.name?.split(" ")[0] || "Friend"
+        ),
       });
     }
   }
-  
+
   return emailList;
 }
