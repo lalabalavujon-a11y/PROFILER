@@ -1,0 +1,52 @@
+{
+  "eventId": "boat_show_southampton_2024",
+  "date": "2024-09-27",
+  "host": {
+    "name": "PROFILER Lead Intelligence",
+    "logoUrl": "https://profiler.app/logo.png",
+    "email": "hello@profiler.app",
+    "website": "https://profiler.app",
+    "payoutModel": "STRIPE_CONNECT",
+    "commissionPct": 25,
+    "affiliateId": "boat_show_2024"
+  },
+  "audience": {
+    "industry": "Marine Industry",
+    "size": "smb",
+    "location": "UK"
+  },
+  "offer": {
+    "tripwirePrice": 297,
+    "tripwireCredits": 1000,
+    "bumpEnabled": true,
+    "bumpPrice": 99,
+    "annualDiscount": 990,
+    "volumeDiscount": 79
+  },
+  "assets": {
+    "deckProvider": "gamma",
+    "brandingPalette": ["#1e40af", "#0ea5e9", "#06b6d4"],
+    "gammaTemplateId": "marine_industry_template"
+  },
+  "leadSources": {
+    "crm": { "type": "hubspot", "apiKey": "demo_key" },
+    "email": { "provider": "sendgrid", "apiKey": "demo_key" }
+  },
+  "targeting": {
+    "industries": [
+      "Yacht Brokers",
+      "Boat Dealers",
+      "Marine Equipment",
+      "Boat Services",
+      "Marine Insurance"
+    ],
+    "companySizes": ["1-10", "11-50", "51-200"],
+    "locations": ["Southampton", "UK", "Europe"],
+    "painPoints": [
+      "Lead Generation",
+      "Customer Qualification",
+      "Sales Process",
+      "Market Intelligence"
+    ]
+  }
+}
