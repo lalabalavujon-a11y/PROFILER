@@ -16,8 +16,20 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["./**/*.ts"],
-  "exclude": ["node_modules", "dist"],
+  "include": [
+    "./agents/**/*.ts",
+    "./api/**/*.ts", 
+    "./lib/**/*.ts",
+    "./contracts/**/*.ts",
+    "./scripts/seed.ts",
+    "./test/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules", 
+    "dist",
+    "web/**/*",
+    "scripts/seed-abm.ts"
+  ],
   "ts-node": {
     "esm": false
   }
