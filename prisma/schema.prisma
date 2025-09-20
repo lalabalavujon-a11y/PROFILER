@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ABM (Account-Based Marketing) Models for Luxury Yacht Industry
+
+model Account {
+  id           String   @id @default(cuid())
+  name         String
+  domain       String?
+  hqCity       String?
+  region       String?
+  industry     String?  // e.g. "Luxury Yachts"
+  tier         AccountTier @default(TARGET)
+  status       AccountStatus @default(PROSPECT)
+  icpScore     Int      @default(0)  // firmographic fit score
+  abmStage     AbmStage @default(ENGAGE)
+  notes        String?
+  owners       Json?    // {marketing:"uid", sales:"uid"}
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  contacts     Contact[]
+  opportunities Opportunity[]
+  activities   Activity[]
+  intent       IntentSignal[]
+  segments     AccountSegment[]
+}
+
+enum AccountTier { TARGET STRATEGIC EXPANSION }
+enum AccountStatus { PROSPECT ACTIVE CHURN_RISK CLOSED }
+enum AbmStage { IDENTIFY ENGAGE ACTIVATE CLOSE EXPAND }
+
+model Contact {
+  id         String   @id @default(cuid())
+  accountId  String
+  firstName  String
+  lastName   String
+  title      String?
+  email      String?
+  phone      String?
+  linkedin   String?
+  role       BuyingRole? // ECONOMIC, TECHNICAL, CHAMPION, USER
+  influence  Int      @default(0)
+  engaged    Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  account    Account  @relation(fields: [accountId], references: [id])
+}
+
+enum BuyingRole { ECONOMIC TECHNICAL CHAMPION USER }
+
+model Opportunity {
+  id         String   @id @default(cuid())
+  accountId  String
+  name       String
+  stage      OppStage @default(QUALIFY)
+  amount     Int?
+  currency   String?  // "GBP","EUR","USD","AED"
+  closeDate  DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  account    Account  @relation(fields: [accountId], references: [id])
+}
+
+enum OppStage { QUALIFY PROPOSE NEGOTIATE WON LOST }
+
+model IntentSignal {
+  id         String   @id @default(cuid())
+  accountId  String
+  source     String   // web, qr, newsletter, directory, events, linkedin
+  signal     String   // "RFP keyword", "pricing page view", "QR scan - GOLD deck"
+  weight     Int      @default(10)
+  meta       Json?
+  createdAt  DateTime @default(now())
+  account    Account  @relation(fields: [accountId], references: [id])
+}
+
+model Activity {
+  id         String   @id @default(cuid())
+  accountId  String
+  channel    String   // email, linkedin, call, meeting, event, ad
+  action     String   // sent, opened, clicked, replied, met, demoed
+  actor      String   // system|userId
+  meta       Json?
+  createdAt  DateTime @default(now())
+  account    Account  @relation(fields: [accountId], references: [id])
+}
+
+model AccountSegment {
+  id        String   @id @default(cuid())
+  accountId String
+  name      String   // e.g., "Brokerage-Top25", "Refit-Europe"
+  createdAt DateTime @default(now())
+  account   Account  @relation(fields: [accountId], references: [id])
+}
+
+// Existing PROFILER models (placeholder - extend as needed)
+model Event {
+  id          String   @id @default(cuid())
+  name        String
+  industry    String?
+  eventDate   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Lead {
+  id          String   @id @default(cuid())
+  email       String?
+  firstName   String?
+  lastName    String?
+  company     String?
+  industry    String?
+  source      String?
+  score       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

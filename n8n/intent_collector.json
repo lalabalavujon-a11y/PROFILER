@@ -1,0 +1,255 @@
+{
+  "name": "ABM Intent Collector",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "abm-intent",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Intent Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "abm-intent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process intent signals from various sources\nconst input = $input.first().json;\n\n// Map different sources to standardized format\nconst intentMappings = {\n  'qr_scan': {\n    source: 'qr',\n    weight: 30,\n    signal: `QR scan - ${input.deck_type || 'deck'}`,\n    meta: {\n      deck_type: input.deck_type,\n      location: input.location,\n      timestamp: input.timestamp\n    }\n  },\n  'website_view': {\n    source: 'web',\n    weight: getWebsiteWeight(input.page),\n    signal: `Viewed ${input.page}`,\n    meta: {\n      page: input.page,\n      duration: input.duration,\n      referrer: input.referrer\n    }\n  },\n  'newsletter_click': {\n    source: 'newsletter',\n    weight: 15,\n    signal: `Newsletter CTA clicked: ${input.cta}`,\n    meta: {\n      cta: input.cta,\n      campaign: input.campaign,\n      user_agent: input.user_agent\n    }\n  },\n  'directory_search': {\n    source: 'directory',\n    weight: 25,\n    signal: `Directory search: ${input.query}`,\n    meta: {\n      query: input.query,\n      filters: input.filters,\n      results_count: input.results_count\n    }\n  },\n  'event_meeting': {\n    source: 'events',\n    weight: 50,\n    signal: `Meeting booked at ${input.event}`,\n    meta: {\n      event: input.event,\n      meeting_type: input.meeting_type,\n      duration: input.duration\n    }\n  },\n  'linkedin_engagement': {\n    source: 'linkedin',\n    weight: 20,\n    signal: `LinkedIn ${input.action}: ${input.content_type}`,\n    meta: {\n      action: input.action,\n      content_type: input.content_type,\n      post_id: input.post_id\n    }\n  }\n};\n\nfunction getWebsiteWeight(page) {\n  const weights = {\n    '/pricing': 40,\n    '/abm': 30,\n    '/contact': 35,\n    '/demo': 45,\n    '/directory': 25,\n    '/': 10\n  };\n  return weights[page] || 15;\n}\n\n// Process the intent signal\nconst intentType = input.type || 'website_view';\nconst mapping = intentMappings[intentType] || intentMappings['website_view'];\n\n// Try to resolve account from domain or email\nconst accountId = input.account_id || resolveAccountId(input);\n\nfunction resolveAccountId(data) {\n  // Logic to resolve account from domain, email, or other identifiers\n  if (data.account_id) return data.account_id;\n  if (data.domain) {\n    // Look up account by domain\n    return `lookup_domain_${data.domain}`;\n  }\n  if (data.email) {\n    const domain = data.email.split('@')[1];\n    return `lookup_domain_${domain}`;\n  }\n  return null;\n}\n\nconst intentSignal = {\n  accountId,\n  source: mapping.source,\n  signal: mapping.signal,\n  weight: mapping.weight,\n  meta: {\n    ...mapping.meta,\n    original_type: intentType,\n    raw_data: input\n  }\n};\n\nreturn [{ json: intentSignal }];"
+      },
+      "id": "process-intent",
+      "name": "Process Intent Signal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-account-id",
+              "leftValue": "={{$json.accountId}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "has-account-check",
+      "name": "Has Account ID?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.APP_URL}}/api/abm/intent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-abm-token",
+              "value": "={{$env.ABM_TOKEN}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "accountId",
+              "value": "={{$json.accountId}}"
+            },
+            {
+              "name": "source",
+              "value": "={{$json.source}}"
+            },
+            {
+              "name": "signal",
+              "value": "={{$json.signal}}"
+            },
+            {
+              "name": "weight",
+              "value": "={{$json.weight}}"
+            },
+            {
+              "name": "meta",
+              "value": "={{$json.meta}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "store-intent",
+      "name": "Store Intent Signal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SLACK_WEBHOOK_URL}}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "🎯 Intent Signal: {{$json.signal}} (Weight: {{$json.weight}}) for account {{$json.accountId}}"
+            },
+            {
+              "name": "channel",
+              "value": "#abm-intent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "slack-intent",
+      "name": "Slack Intent Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SLACK_WEBHOOK_URL}}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "⚠️ Intent signal received but no account ID found: {{$json}}"
+            },
+            {
+              "name": "channel",
+              "value": "#abm-alerts"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "slack-no-account",
+      "name": "Slack No Account",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{JSON.stringify({ success: true, intentProcessed: true })}}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    }
+  ],
+  "connections": {
+    "Intent Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Intent Signal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Intent Signal": {
+      "main": [
+        [
+          {
+            "node": "Has Account ID?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Account ID?": {
+      "main": [
+        [
+          {
+            "node": "Store Intent Signal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack No Account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Intent Signal": {
+      "main": [
+        [
+          {
+            "node": "Slack Intent Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Intent Alert": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack No Account": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z",
+      "id": "abm",
+      "name": "ABM"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+}

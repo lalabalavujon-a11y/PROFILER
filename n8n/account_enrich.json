@@ -1,0 +1,275 @@
+{
+  "name": "ABM Account Enrichment",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "abm-account-enrich",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "abm-account-enrich"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse incoming CSV or target list\nconst input = $input.first().json;\nconst accounts = input.accounts || [];\n\n// Enrich each account with additional data\nconst enrichedAccounts = accounts.map(account => {\n  return {\n    name: account.name,\n    domain: account.domain || extractDomain(account.email),\n    hqCity: account.city || account.hqCity,\n    region: account.region || inferRegion(account.city),\n    industry: account.industry || 'Luxury Yachts',\n    tier: determineTier(account),\n    icpScore: calculateIcpScore(account),\n    abmStage: 'IDENTIFY',\n    notes: account.notes || `Imported from ${input.source || 'target list'}`,\n    owners: {\n      marketing: account.marketingOwner || null,\n      sales: account.salesOwner || null\n    }\n  };\n});\n\nfunction extractDomain(email) {\n  if (!email) return null;\n  const domain = email.split('@')[1];\n  return domain ? `https://${domain}` : null;\n}\n\nfunction inferRegion(city) {\n  const regionMap = {\n    'Monaco': 'Europe',\n    'Antibes': 'Europe',\n    'Cannes': 'Europe',\n    'Fort Lauderdale': 'North America',\n    'Miami': 'North America',\n    'Newport': 'North America',\n    'Dubai': 'Middle East',\n    'Singapore': 'Asia Pacific'\n  };\n  return regionMap[city] || 'Global';\n}\n\nfunction determineTier(account) {\n  // Logic to determine account tier based on size, industry, etc.\n  if (account.fleetSize > 100 || account.revenue > 100000000) {\n    return 'STRATEGIC';\n  } else if (account.isExhibitor || account.fleetSize > 50) {\n    return 'TARGET';\n  } else {\n    return 'TARGET';\n  }\n}\n\nfunction calculateIcpScore(account) {\n  let score = 0;\n  \n  // Industry match\n  if (account.industry === 'Luxury Yachts') score += 30;\n  \n  // Region match (Mediterranean, Caribbean, etc.)\n  const premiumRegions = ['Europe', 'North America', 'Middle East'];\n  if (premiumRegions.includes(account.region)) score += 20;\n  \n  // Fleet size\n  if (account.fleetSize > 50) score += 25;\n  \n  // Exhibitor status\n  if (account.isExhibitor) score += 15;\n  \n  // Website signals\n  if (account.hasWebsite) score += 10;\n  \n  return Math.min(score, 100);\n}\n\nreturn enrichedAccounts.map(account => ({ json: account }));"
+      },
+      "id": "enrich-accounts",
+      "name": "Enrich Accounts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.APP_URL}}/api/abm/accounts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-abm-token",
+              "value": "={{$env.ABM_TOKEN}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{$json.name}}"
+            },
+            {
+              "name": "domain",
+              "value": "={{$json.domain}}"
+            },
+            {
+              "name": "hqCity",
+              "value": "={{$json.hqCity}}"
+            },
+            {
+              "name": "region",
+              "value": "={{$json.region}}"
+            },
+            {
+              "name": "industry",
+              "value": "={{$json.industry}}"
+            },
+            {
+              "name": "tier",
+              "value": "={{$json.tier}}"
+            },
+            {
+              "name": "icpScore",
+              "value": "={{$json.icpScore}}"
+            },
+            {
+              "name": "abmStage",
+              "value": "={{$json.abmStage}}"
+            },
+            {
+              "name": "notes",
+              "value": "={{$json.notes}}"
+            },
+            {
+              "name": "owners",
+              "value": "={{$json.owners}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "create-account",
+      "name": "Create Account in DB",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "success-condition",
+              "leftValue": "={{$json.status}}",
+              "rightValue": "201",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-success",
+      "name": "Check Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SLACK_WEBHOOK_URL}}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "✅ ABM Account Enriched: {{$json.data.name}} (ICP: {{$json.data.icpScore}})"
+            },
+            {
+              "name": "channel",
+              "value": "#abm-alerts"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "slack-success",
+      "name": "Slack Success",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SLACK_WEBHOOK_URL}}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "❌ Failed to create ABM account: {{$json.error || 'Unknown error'}}"
+            },
+            {
+              "name": "channel",
+              "value": "#abm-alerts"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "slack-error",
+      "name": "Slack Error",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{JSON.stringify({ success: true, accountsCreated: $input.all().length })}}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Enrich Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrich Accounts": {
+      "main": [
+        [
+          {
+            "node": "Create Account in DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Account in DB": {
+      "main": [
+        [
+          {
+            "node": "Check Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Success": {
+      "main": [
+        [
+          {
+            "node": "Slack Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Success": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Error": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z",
+      "id": "abm",
+      "name": "ABM"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+}

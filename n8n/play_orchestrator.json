@@ -1,0 +1,384 @@
+{
+  "name": "ABM Play Orchestrator",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Hourly Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.APP_URL}}/api/abm/accounts?limit=100",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-abm-token",
+              "value": "={{$env.ABM_TOKEN}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-accounts",
+      "name": "Fetch Accounts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Analyze accounts and determine next actions\nconst accounts = $input.all().map(item => item.json.data).flat();\nconst now = new Date();\n\nconst accountsToProcess = [];\n\nfor (const account of accounts) {\n  const nextAction = determineNextAction(account, now);\n  if (nextAction) {\n    accountsToProcess.push({\n      ...account,\n      nextAction\n    });\n  }\n}\n\nfunction determineNextAction(account, now) {\n  const lastActivity = getLastActivity(account);\n  const intentScore = calculateIntentScore(account.intent);\n  const daysSinceLastTouch = lastActivity ? \n    Math.floor((now - new Date(lastActivity.createdAt)) / (1000 * 60 * 60 * 24)) : 999;\n\n  // Core 5-touch play logic\n  switch (account.abmStage) {\n    case 'IDENTIFY':\n      if (intentScore >= 60) {\n        return { type: 'advance_stage', toStage: 'ENGAGE', reason: 'High intent detected' };\n      }\n      break;\n      \n    case 'ENGAGE':\n      if (daysSinceLastTouch >= 3) {\n        return { type: 'send_email', template: 'account_brief', reason: 'Core 5-touch: Day 0 email' };\n      }\n      if (daysSinceLastTouch >= 5) {\n        return { type: 'linkedin_task', reason: 'Core 5-touch: Day 2 LinkedIn' };\n      }\n      if (daysSinceLastTouch >= 8) {\n        return { type: 'send_email', template: 'follow_up', reason: 'Core 5-touch: Day 5 value video' };\n      }\n      if (daysSinceLastTouch >= 11) {\n        return { type: 'physical_mail', reason: 'Core 5-touch: Day 8 physical 1-pager' };\n      }\n      if (daysSinceLastTouch >= 14) {\n        return { type: 'send_email', template: 'meeting_request', reason: 'Core 5-touch: Day 12 exec email' };\n      }\n      if (intentScore >= 80) {\n        return { type: 'advance_stage', toStage: 'ACTIVATE', reason: 'High engagement + intent' };\n      }\n      break;\n      \n    case 'ACTIVATE':\n      if (daysSinceLastTouch >= 7) {\n        return { type: 'send_email', template: 'pilot_invite', reason: 'Activation play: Pilot invitation' };\n      }\n      if (intentScore >= 90) {\n        return { type: 'advance_stage', toStage: 'CLOSE', reason: 'Very high intent for closing' };\n      }\n      break;\n      \n    case 'CLOSE':\n      if (daysSinceLastTouch >= 14) {\n        return { type: 'send_email', template: 'follow_up', reason: 'Closing play: Follow up' };\n      }\n      break;\n      \n    case 'EXPAND':\n      if (daysSinceLastTouch >= 30) {\n        return { type: 'send_email', template: 'follow_up', reason: 'Expansion play: Quarterly check-in' };\n      }\n      break;\n  }\n\n  // Intent spike detection\n  if (intentScore >= 100 && account.abmStage !== 'ACTIVATE') {\n    return { type: 'intent_spike_alert', reason: 'Intent spike detected' };\n  }\n\n  return null;\n}\n\nfunction getLastActivity(account) {\n  if (!account.activities || account.activities.length === 0) return null;\n  return account.activities[0]; // Already sorted by createdAt desc\n}\n\nfunction calculateIntentScore(intentSignals) {\n  if (!intentSignals) return 0;\n  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);\n  return intentSignals\n    .filter(signal => new Date(signal.createdAt) >= thirtyDaysAgo)\n    .reduce((sum, signal) => sum + (signal.weight || 0), 0);\n}\n\nreturn accountsToProcess.map(account => ({ json: account }));"
+      },
+      "id": "analyze-accounts",
+      "name": "Analyze Accounts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-actions",
+              "leftValue": "={{$input.all().length}}",
+              "rightValue": "0",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "has-actions-check",
+      "name": "Has Actions?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "is-email-action",
+              "leftValue": "={{$json.nextAction.type}}",
+              "rightValue": "send_email",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "action-type-router",
+      "name": "Action Type Router",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.APP_URL}}/api/abm/send-email",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-abm-token",
+              "value": "={{$env.ABM_TOKEN}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "accountId",
+              "value": "={{$json.id}}"
+            },
+            {
+              "name": "template",
+              "value": "={{$json.nextAction.template}}"
+            },
+            {
+              "name": "actor",
+              "value": "n8n-play-orchestrator"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "send-email",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "is-advance-action",
+              "leftValue": "={{$json.nextAction.type}}",
+              "rightValue": "advance_stage",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "advance-stage-router",
+      "name": "Advance Stage Router",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1340, 400]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.APP_URL}}/api/abm/advance",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-abm-token",
+              "value": "={{$env.ABM_TOKEN}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "accountId",
+              "value": "={{$json.id}}"
+            },
+            {
+              "name": "toStage",
+              "value": "={{$json.nextAction.toStage}}"
+            },
+            {
+              "name": "reason",
+              "value": "={{$json.nextAction.reason}}"
+            },
+            {
+              "name": "actor",
+              "value": "n8n-play-orchestrator"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "advance-stage",
+      "name": "Advance Stage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1560, 400]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SLACK_WEBHOOK_URL}}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "📧 ABM Email Sent: {{$json.name}} - {{$json.nextAction.template}}"
+            },
+            {
+              "name": "channel",
+              "value": "#abm-actions"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "slack-email-sent",
+      "name": "Slack Email Sent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1780, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SLACK_WEBHOOK_URL}}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "🚀 ABM Stage Advanced: {{$json.name}} → {{$json.nextAction.toStage}}"
+            },
+            {
+              "name": "channel",
+              "value": "#abm-actions"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "slack-stage-advanced",
+      "name": "Slack Stage Advanced",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1780, 400]
+    }
+  ],
+  "connections": {
+    "Hourly Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Accounts": {
+      "main": [
+        [
+          {
+            "node": "Analyze Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Accounts": {
+      "main": [
+        [
+          {
+            "node": "Has Actions?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Actions?": {
+      "main": [
+        [
+          {
+            "node": "Action Type Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Action Type Router": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Advance Stage Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Advance Stage Router": {
+      "main": [
+        [
+          {
+            "node": "Advance Stage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Slack Email Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Advance Stage": {
+      "main": [
+        [
+          {
+            "node": "Slack Stage Advanced",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z",
+      "id": "abm",
+      "name": "ABM"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+}

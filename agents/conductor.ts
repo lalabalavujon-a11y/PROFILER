@@ -21,7 +21,6 @@ type EventStateType = z.infer<typeof EventState>;
 
 export function buildGraph() {
   const g = new StateGraph<EventStateType>({
-    stateSchema: EventState,
     channels: {
       packet: null,
       artifacts: null,
@@ -54,6 +53,10 @@ export function buildGraph() {
     if (provider === "both") return ["deck_google", "deck_gamma"];
     if (provider === "gamma") return ["deck_gamma"];
     return ["deck_google"];
+  }, {
+    "deck_google": "deck_google",
+    "deck_gamma": "deck_gamma",
+    "both": "deck_google"
   });
 
   g.addConditionalEdges("deck_google", (state: EventStateType) => {
@@ -63,6 +66,9 @@ export function buildGraph() {
       return [];
     }
     return ["funnel"];
+  }, {
+    "funnel": "funnel",
+    "wait": "deck_gamma"
   });
 
   g.addConditionalEdges("deck_gamma", (state: EventStateType) => {
@@ -72,6 +78,9 @@ export function buildGraph() {
       return [];
     }
     return ["funnel"];
+  }, {
+    "funnel": "funnel",
+    "wait": "deck_google"
   });
 
   g.addEdge("funnel", "affiliate");
