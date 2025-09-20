@@ -9,7 +9,8 @@
   "scripts": {
     "test": "vitest",
     "dev": "ts-node scripts/dev.ts",
-    "build": "tsc",
+    "build": "tsc && echo 'Build completed successfully for Cloudflare Pages'",
+    "pages:build": "npm run build",
     "start": "node dist/api/simple-server.js",
     "seed": "ts-node scripts/seed.ts",
     "seed-abm": "ts-node scripts/seed-abm.ts",
