@@ -1,0 +1,28 @@
+{
+  "projectName": "profiler-lead-recon",
+  "productionBranch": "main",
+  "buildSettings": {
+    "buildCommand": "",
+    "buildOutputDirectory": "dist",
+    "rootDirectory": "",
+    "frameworkPreset": "none"
+  },
+  "environmentVariables": {
+    "production": {
+      "NODE_ENV": "production",
+      "PORT": "8080",
+      "GAMMA_ENABLED": "true",
+      "DEFAULT_DECK_PROVIDER": "gamma",
+      "ENABLE_MCP_RUBE": "true",
+      "LANGCHAIN_TRACING_V2": "true",
+      "LANGCHAIN_PROJECT": "profiler-production"
+    }
+  },
+  "customDomain": "profiler.leadrecon.app",
+  "features": {
+    "autoScaling": true,
+    "globalCDN": true,
+    "automaticHTTPS": true,
+    "ddosProtection": true
+  }
+}
