@@ -9,7 +9,7 @@ RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-BASE_URL="https://profiler.leadrecon.app"
+BASE_URL="https://profiler.solutions"
 
 echo -e "${YELLOW}Testing deployment at: $BASE_URL${NC}"
 echo ""

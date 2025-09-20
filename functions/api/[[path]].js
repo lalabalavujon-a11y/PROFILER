@@ -91,11 +91,11 @@ export async function onRequest(context) {
           },
           funnel: {
             created: true,
-            url: `https://profiler.leadrecon.app/f/${packet.eventId}`,
+            url: `https://profiler.solutions/f/${packet.eventId}`,
             optimized: true
           },
           tracking: {
-            affiliateLink: `https://profiler.leadrecon.app/f/${packet.eventId}?aff_id=demo`,
+            affiliateLink: `https://profiler.solutions/f/${packet.eventId}?aff_id=demo`,
             commissionRate: 0.30
           }
         },
@@ -129,7 +129,8 @@ export async function onRequest(context) {
     service: 'PROFILER AI Lead Intelligence System',
     message: 'API endpoint not found',
     availableEndpoints: ['/health', '/api/status', '/api/run-event'],
-    documentation: 'https://github.com/lalabalavujon-a11y/PROFILER'
+    documentation: 'https://github.com/lalabalavujon-a11y/PROFILER',
+    domain: 'profiler.solutions'
   }), {
     status: 404,
     headers: { 'Content-Type': 'application/json' }

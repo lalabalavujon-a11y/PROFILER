@@ -16,7 +16,7 @@
 
 - Cloudflare Pages should now deploy from latest commit (9be50db)
 - Build process should work without import errors
-- Static site should serve at profiler.leadrecon.app
+- Static site should serve at profiler.solutions
 - API endpoints should be functional
 
 ## Manual Deployment Instructions:
