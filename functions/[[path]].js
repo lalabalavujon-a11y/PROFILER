@@ -31,7 +31,7 @@ export async function onRequest(context) {
             <h3>✅ Deployment Status: LIVE</h3>
             <p>Successfully deployed to profiler.leadrecon.app</p>
             <p><strong>Environment:</strong> Production</p>
-            <p><strong>Version:</strong> 1.0.0</p>
+            <p><strong>Version:</strong> 1.0.1</p>
             <p><strong>Platform:</strong> Cloudflare Pages</p>
         </div>
         
