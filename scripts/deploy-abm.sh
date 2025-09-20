@@ -51,15 +51,15 @@ echo "🔍 Checking environment configuration..."
 
 if [ -f ".env" ]; then
     source .env
-    
+
     if [ -z "$ABM_TOKEN" ] || [ "$ABM_TOKEN" = "your_secure_abm_token_here" ]; then
         echo "⚠️  ABM_TOKEN not configured. Please set it in .env"
     fi
-    
+
     if [ -z "$ABM_HMAC_SECRET" ] || [ "$ABM_HMAC_SECRET" = "your_hmac_secret_for_webhooks" ]; then
         echo "⚠️  ABM_HMAC_SECRET not configured. Please set it in .env"
     fi
-    
+
     if [ -z "$NEXT_PUBLIC_SITE_URL" ] || [ "$NEXT_PUBLIC_SITE_URL" = "https://your-domain.com" ]; then
         echo "⚠️  NEXT_PUBLIC_SITE_URL not configured. Please set it in .env"
     fi

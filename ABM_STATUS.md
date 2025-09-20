@@ -7,18 +7,21 @@ Your PROFILER system has been successfully transformed into a comprehensive **Ac
 ### 📦 What's Been Added
 
 #### 🗄️ Database & Schema
+
 - ✅ Complete Prisma schema with ABM models
 - ✅ Account, Contact, Opportunity, IntentSignal, Activity, AccountSegment models
 - ✅ Migration-ready database structure
 - ✅ Sample data seeding script
 
 #### 🎨 Frontend Dashboard
+
 - ✅ ABM Hub (`/abm/hub`) - Account overview with ICP scores
 - ✅ Account Detail (`/abm/[accountId]`) - Individual account pages
 - ✅ Executive Insights (`/abm/insights`) - Real-time metrics dashboard
 - ✅ Token-based authentication middleware
 
 #### 🔌 API Endpoints
+
 - ✅ Account Management (`/api/abm/accounts`)
 - ✅ Intent Signal Collection (`/api/abm/intent`)
 - ✅ Stage Advancement (`/api/abm/advance`)
@@ -27,18 +30,21 @@ Your PROFILER system has been successfully transformed into a comprehensive **Ac
 - ✅ Intent Spike Detection (`/api/abm/intent/spikes`)
 
 #### 🤖 n8n Workflows
+
 - ✅ Account Enrichment workflow
 - ✅ Intent Collection workflow
 - ✅ Play Orchestration workflow
 - ✅ Ready-to-import JSON files
 
 #### 🔗 Enterprise Integrations
+
 - ✅ GoHighLevel CRM pipeline setup script
 - ✅ ClickUp task templates for ABM campaigns
 - ✅ Slack notification integration
 - ✅ Resend email service integration
 
 #### ⚙️ Configuration & Scripts
+
 - ✅ Typed config helper with validation
 - ✅ Complete environment template
 - ✅ Deployment script (`./scripts/deploy-abm.sh`)
@@ -61,18 +67,21 @@ PROFILER + ABM System
 ### 🎯 Key Features
 
 #### Account-Based Marketing
+
 - **Named Account Targeting**: Focus on specific luxury yacht organizations
 - **Buying Committee Mapping**: Economic, Technical, Champion, User roles
 - **ICP Scoring**: Firmographic fit scoring (0-100)
 - **Intent Tracking**: Multi-source weighted scoring
 
 #### Campaign Orchestration
+
 - **Core 5-Touch Play**: 14-day automated sequence
 - **Show-Window Play**: Event-focused campaigns
 - **Pilot Launch**: Managed ABM pilots
 - **Stage-Based Routing**: Automated progression
 
 #### Revenue Attribution
+
 - **Opportunity Tracking**: Pipeline management
 - **Expansion Revenue**: Upsell/cross-sell tracking
 - **ROI Measurement**: Return on ABM investment
@@ -134,10 +143,12 @@ open http://localhost:3000/abm/hub
 ### 🎉 What You Now Have
 
 Your PROFILER system now has **both**:
+
 1. **Mass Lead Generation** (your existing capabilities)
 2. **High-Value Account Management** (new ABM capabilities)
 
 This creates a **hybrid system** perfect for the luxury yacht industry that can:
+
 - Generate leads at scale for general campaigns
 - Target specific accounts with personalized ABM campaigns
 - Track intent signals from yacht shows and events
@@ -147,6 +158,7 @@ This creates a **hybrid system** perfect for the luxury yacht industry that can:
 ### 🏆 Business Impact
 
 This ABM system transforms PROFILER from:
+
 - **Lead Generation Tool** → **Account Revenue Platform**
 - **Mass Marketing** → **High-Value Relationship Building**
 - **One-Time Transactions** → **Expansion Revenue Streams**
