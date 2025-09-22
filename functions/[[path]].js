@@ -5,22 +5,22 @@ export async function onRequest(context) {
   const pathname = url.pathname;
 
   // Handle API routes
-  if (pathname.startsWith('/api/')) {
-    return new Response('PROFILER API Functions are working!', {
-      headers: { 
-        'Content-Type': 'text/plain',
-        'Access-Control-Allow-Origin': '*'
-      }
+  if (pathname.startsWith("/api/")) {
+    return new Response("PROFILER API Functions are working!", {
+      headers: {
+        "Content-Type": "text/plain",
+        "Access-Control-Allow-Origin": "*",
+      },
     });
   }
 
   // Handle health check
-  if (pathname === '/health') {
-    return new Response('PROFILER API Functions are working!', {
-      headers: { 
-        'Content-Type': 'text/plain',
-        'Access-Control-Allow-Origin': '*'
-      }
+  if (pathname === "/health") {
+    return new Response("PROFILER API Functions are working!", {
+      headers: {
+        "Content-Type": "text/plain",
+        "Access-Control-Allow-Origin": "*",
+      },
     });
   }
 
