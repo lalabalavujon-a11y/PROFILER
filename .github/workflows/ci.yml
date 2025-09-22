@@ -2,50 +2,50 @@ name: 🔍 PROFILER CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
-        node-version: ['22.12.0']
-        
+        node-version: ["22.12.0"]
+
     steps:
-    - name: 📥 Checkout Repository
-      uses: actions/checkout@v4
-      
-    - name: 🟢 Setup Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'pnpm'
-        
-    - name: 📦 Install pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 9.12.0
-        
-    - name: 📦 Install Dependencies
-      run: pnpm install --frozen-lockfile
-      
-    - name: 🔍 Lint Code
-      run: pnpm lint || echo "Linting not configured yet"
-      
-    - name: 🧪 Run Tests
-      run: pnpm test
-      
-    - name: 🏗️ Build Application
-      run: pnpm build
-      
-    - name: 📊 Test Coverage
-      run: pnpm test:coverage || echo "Coverage not configured yet"
-      
-    - name: ✅ Node.js Version Check
-      run: |
-        echo "✅ Node.js version: $(node --version)"
-        echo "✅ pnpm version: $(pnpm --version)"
-        echo "✅ PROFILER system ready for deployment!"
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔍 Lint Code
+        run: pnpm lint || echo "Linting not configured yet"
+
+      - name: 🧪 Run Tests
+        run: pnpm test
+
+      - name: 🏗️ Build Application
+        run: pnpm build
+
+      - name: 📊 Test Coverage
+        run: pnpm test:coverage || echo "Coverage not configured yet"
+
+      - name: ✅ Node.js Version Check
+        run: |
+          echo "✅ Node.js version: $(node --version)"
+          echo "✅ pnpm version: $(pnpm --version)"
+          echo "✅ PROFILER system ready for deployment!"

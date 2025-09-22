@@ -19,27 +19,27 @@ NC='\033[0m' # No Color
 if ! command -v node &> /dev/null; then
     echo -e "${RED}❌ Node.js is not installed${NC}"
     echo -e "${YELLOW}📥 Installing Node.js 22.12.0...${NC}"
-    
+
     # Install Node.js 22 using NodeSource repository
     curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
     sudo apt-get install -y nodejs
-    
+
     echo -e "${GREEN}✅ Node.js 22 installed successfully${NC}"
 else
     CURRENT_VERSION=$(node --version)
     echo -e "${BLUE}📋 Current Node.js version: $CURRENT_VERSION${NC}"
-    
+
     # Check if version is 22.x
     if [[ $CURRENT_VERSION == v22* ]]; then
         echo -e "${GREEN}✅ Node.js 22 is already installed${NC}"
     else
         echo -e "${YELLOW}⚠️  Node.js 22 required, current version: $CURRENT_VERSION${NC}"
         echo -e "${YELLOW}📥 Upgrading to Node.js 22.12.0...${NC}"
-        
+
         # Install Node.js 22
         curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
         sudo apt-get install -y nodejs
-        
+
         echo -e "${GREEN}✅ Node.js 22 installed successfully${NC}"
     fi
 fi

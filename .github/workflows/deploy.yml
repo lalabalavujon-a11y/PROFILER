@@ -2,50 +2,50 @@ name: 🚀 PROFILER Deploy to Cloudflare Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: 📥 Checkout Repository
-      uses: actions/checkout@v4
-      
-    - name: 🟢 Setup Node.js 22
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22.12.0'
-        cache: 'pnpm'
-        
-    - name: 📦 Install pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 9.12.0
-        
-    - name: 📦 Install Dependencies
-      run: pnpm install --frozen-lockfile
-      
-    - name: 🧪 Run Tests
-      run: pnpm test
-      
-    - name: 🏗️ Build Application
-      run: pnpm build
-      
-    - name: 🚀 Deploy to Cloudflare Pages
-      uses: cloudflare/pages-action@v1
-      with:
-        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        projectName: profiler-lead-recon
-        directory: dist
-        gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-        wranglerVersion: '3.0.0'
-        
-    - name: ✅ Health Check
-      run: |
-        echo "🚀 Deployment completed successfully!"
-        echo "🌐 PROFILER system is now live at profiler.solutions"
-        echo "🛥️ Monaco yacht demo ready for $350M+ revenue impact"
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.12.0"
+          cache: "pnpm"
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🧪 Run Tests
+        run: pnpm test
+
+      - name: 🏗️ Build Application
+        run: pnpm build
+
+      - name: 🚀 Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: profiler-lead-recon
+          directory: dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          wranglerVersion: "3.0.0"
+
+      - name: ✅ Health Check
+        run: |
+          echo "🚀 Deployment completed successfully!"
+          echo "🌐 PROFILER system is now live at profiler.solutions"
+          echo "🛥️ Monaco yacht demo ready for $350M+ revenue impact"

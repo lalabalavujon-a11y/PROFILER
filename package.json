@@ -9,7 +9,7 @@
   "scripts": {
     "test": "vitest",
     "dev": "ts-node scripts/dev.ts",
-    "build": "mkdir -p public && cp index.html public/ 2>/dev/null || echo 'Static files ready' && tsc && echo 'Build completed successfully for Cloudflare Pages'",
+    "build": "mkdir -p dist && cp index.html dist/ && cp -r public/* dist/ 2>/dev/null || echo 'Static files ready' && tsc && echo 'Build completed successfully for Cloudflare Pages'",
     "pages:build": "npm run build",
     "start": "node dist/api/simple-server.js",
     "seed": "ts-node scripts/seed.ts",
