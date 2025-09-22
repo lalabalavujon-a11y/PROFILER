@@ -1,678 +1,765 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PROFILER - Enterprise AI Lead Intelligence Platform</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #1a1a1a;
-            background: #ffffff;
-        }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.6;
+        color: #1a1a1a;
+        background: #ffffff;
+      }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
 
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            color: white;
-            padding: 2rem 0;
-            position: relative;
-            overflow: hidden;
-        }
+      /* Header */
+      .header {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        color: white;
+        padding: 2rem 0;
+        position: relative;
+        overflow: hidden;
+      }
 
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-            opacity: 0.3;
-        }
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        opacity: 0.3;
+      }
 
-        .header-content {
-            position: relative;
-            z-index: 1;
-            text-align: center;
+      .header-content {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+      }
+
+      .logo {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .tagline {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        opacity: 0.95;
+        font-weight: 300;
+      }
+
+      .status-badge {
+        display: inline-block;
+        background: rgba(16, 185, 129, 0.2);
+        border: 2px solid #10b981;
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+      }
+
+      /* Main Content */
+      .main-content {
+        padding: 4rem 0;
+      }
+
+      .section {
+        margin-bottom: 4rem;
+      }
+
+      .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 3rem;
+        color: #1e3a8a;
+      }
+
+      /* Features Grid */
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+      }
+
+      .feature-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .feature-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #10b981);
+      }
+
+      .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      }
+
+      .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .feature-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #1e3a8a;
+      }
+
+      .feature-description {
+        color: #6b7280;
+        line-height: 1.6;
+      }
+
+      /* Lead Recon Integration */
+      .integration-section {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 4rem 0;
+        border-radius: 24px;
+        margin: 3rem 0;
+      }
+
+      .integration-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: center;
+      }
+
+      .integration-text h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: #1e3a8a;
+      }
+
+      .integration-text p {
+        font-size: 1.1rem;
+        color: #4b5563;
+        margin-bottom: 1.5rem;
+      }
+
+      .integration-features {
+        list-style: none;
+      }
+
+      .integration-features li {
+        padding: 0.5rem 0;
+        color: #374151;
+        position: relative;
+        padding-left: 2rem;
+      }
+
+      .integration-features li::before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #10b981;
+        font-weight: bold;
+      }
+
+      .integration-visual {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
+
+      .workflow-step {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        border-left: 4px solid #3b82f6;
+      }
+
+      .workflow-step:last-child {
+        margin-bottom: 0;
+      }
+
+      .step-number {
+        background: #3b82f6;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 1rem;
+        flex-shrink: 0;
+      }
+
+      .step-content {
+        flex: 1;
+      }
+
+      .step-title {
+        font-weight: 600;
+        color: #1e3a8a;
+        margin-bottom: 0.25rem;
+      }
+
+      .step-description {
+        color: #6b7280;
+        font-size: 0.9rem;
+      }
+
+      /* API Section */
+      .api-section {
+        background: #1e3a8a;
+        color: white;
+        padding: 4rem 0;
+        border-radius: 24px;
+        margin: 3rem 0;
+      }
+
+      .api-endpoints {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .api-endpoint {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
+      }
+
+      .api-method {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .method-get {
+        background: #10b981;
+      }
+      .method-post {
+        background: #f59e0b;
+      }
+
+      .api-path {
+        font-family: "Monaco", "Menlo", monospace;
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+
+      /* Demo Section */
+      .demo-section {
+        text-align: center;
+        padding: 4rem 0;
+      }
+
+      .demo-button {
+        display: inline-block;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      .demo-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Monaco Demo Highlight */
+      .monaco-highlight {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border: 2px solid #f59e0b;
+        border-radius: 16px;
+        padding: 2rem;
+        margin: 2rem 0;
+        text-align: center;
+      }
+
+      .monaco-highlight h3 {
+        color: #92400e;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .monaco-highlight p {
+        color: #78350f;
+        font-size: 1.1rem;
+      }
+
+      /* Footer */
+      .footer {
+        background: #1f2937;
+        color: #d1d5db;
+        padding: 3rem 0;
+        text-align: center;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .footer-section h4 {
+        color: white;
+        margin-bottom: 1rem;
+      }
+
+      .footer-section ul {
+        list-style: none;
+      }
+
+      .footer-section ul li {
+        margin-bottom: 0.5rem;
+      }
+
+      .footer-section ul li a {
+        color: #d1d5db;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .footer-section ul li a:hover {
+        color: #3b82f6;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .integration-content {
+          grid-template-columns: 1fr;
         }
 
         .logo {
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+          font-size: 2.5rem;
         }
 
         .tagline {
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-            opacity: 0.95;
-            font-weight: 300;
+          font-size: 1.2rem;
         }
+      }
 
-        .status-badge {
-            display: inline-block;
-            background: rgba(16, 185, 129, 0.2);
-            border: 2px solid #10b981;
-            padding: 0.5rem 1.5rem;
-            border-radius: 50px;
-            font-weight: 600;
-            margin-bottom: 2rem;
-            backdrop-filter: blur(10px);
+      /* Loading Animation */
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
         }
-
-        /* Main Content */
-        .main-content {
-            padding: 4rem 0;
-        }
-
-        .section {
-            margin-bottom: 4rem;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 3rem;
-            color: #1e3a8a;
-        }
-
-        /* Features Grid */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .feature-card {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #3b82f6, #10b981);
-        }
-
-        .feature-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .feature-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: #1e3a8a;
-        }
-
-        .feature-description {
-            color: #6b7280;
-            line-height: 1.6;
-        }
-
-        /* Lead Recon Integration */
-        .integration-section {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            padding: 4rem 0;
-            border-radius: 24px;
-            margin: 3rem 0;
-        }
-
-        .integration-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            align-items: center;
-        }
-
-        .integration-text h3 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            color: #1e3a8a;
-        }
-
-        .integration-text p {
-            font-size: 1.1rem;
-            color: #4b5563;
-            margin-bottom: 1.5rem;
-        }
-
-        .integration-features {
-            list-style: none;
-        }
-
-        .integration-features li {
-            padding: 0.5rem 0;
-            color: #374151;
-            position: relative;
-            padding-left: 2rem;
-        }
-
-        .integration-features li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: #10b981;
-            font-weight: bold;
-        }
-
-        .integration-visual {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .workflow-step {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding: 1rem;
-            background: #f8fafc;
-            border-radius: 12px;
-            border-left: 4px solid #3b82f6;
-        }
-
-        .workflow-step:last-child {
-            margin-bottom: 0;
-        }
-
-        .step-number {
-            background: #3b82f6;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 1rem;
-            flex-shrink: 0;
-        }
-
-        .step-content {
-            flex: 1;
-        }
-
-        .step-title {
-            font-weight: 600;
-            color: #1e3a8a;
-            margin-bottom: 0.25rem;
-        }
-
-        .step-description {
-            color: #6b7280;
-            font-size: 0.9rem;
-        }
-
-        /* API Section */
-        .api-section {
-            background: #1e3a8a;
-            color: white;
-            padding: 4rem 0;
-            border-radius: 24px;
-            margin: 3rem 0;
-        }
-
-        .api-endpoints {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .api-endpoint {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 1.5rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .api-method {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .method-get { background: #10b981; }
-        .method-post { background: #f59e0b; }
-
-        .api-path {
-            font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        /* Demo Section */
-        .demo-section {
-            text-align: center;
-            padding: 4rem 0;
-        }
-
-        .demo-button {
-            display: inline-block;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .demo-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Monaco Demo Highlight */
-        .monaco-highlight {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: 2px solid #f59e0b;
-            border-radius: 16px;
-            padding: 2rem;
-            margin: 2rem 0;
-            text-align: center;
-        }
-
-        .monaco-highlight h3 {
-            color: #92400e;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .monaco-highlight p {
-            color: #78350f;
-            font-size: 1.1rem;
-        }
-
-        /* Footer */
-        .footer {
-            background: #1f2937;
-            color: #d1d5db;
-            padding: 3rem 0;
-            text-align: center;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .footer-section h4 {
-            color: white;
-            margin-bottom: 1rem;
-        }
-
-        .footer-section ul {
-            list-style: none;
-        }
-
-        .footer-section ul li {
-            margin-bottom: 0.5rem;
-        }
-
-        .footer-section ul li a {
-            color: #d1d5db;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer-section ul li a:hover {
-            color: #3b82f6;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .integration-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .logo {
-                font-size: 2.5rem;
-            }
-            
-            .tagline {
-                font-size: 1.2rem;
-            }
-        }
-
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Header -->
     <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">🚀 PROFILER</div>
-                <div class="tagline">Enterprise AI Lead Intelligence Platform</div>
-                <div class="status-badge">
-                    ✅ System Status: LIVE & OPERATIONAL
-                </div>
-                <p style="font-size: 1.1rem; opacity: 0.9;">
-                    Transforming raw lead data into qualified prospects through AI-powered analysis and automation
-                </p>
-            </div>
+      <div class="container">
+        <div class="header-content">
+          <div class="logo">🚀 PROFILER</div>
+          <div class="tagline">Enterprise AI Lead Intelligence Platform</div>
+          <div class="status-badge">✅ System Status: LIVE & OPERATIONAL</div>
+          <p style="font-size: 1.1rem; opacity: 0.9">
+            Transforming raw lead data into qualified prospects through
+            AI-powered analysis and automation
+          </p>
         </div>
+      </div>
     </header>
 
     <!-- Main Content -->
     <main class="main-content">
-        <div class="container">
-            <!-- Core Features -->
-            <section class="section">
-                <h2 class="section-title">Enterprise-Grade Lead Intelligence</h2>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">🧠</div>
-                        <h3 class="feature-title">AI-Powered Lead Analysis</h3>
-                        <p class="feature-description">
-                            GPT-4 driven lead scoring, segmentation, and qualification. Processes 50+ leads per batch with 95% accuracy in identifying high-value prospects.
-                        </p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">📊</div>
-                        <h3 class="feature-title">Multi-Provider Deck Generation</h3>
-                        <p class="feature-description">
-                            Automated presentation creation using Google Slides API and Gamma AI. Generates customized decks in under 30 seconds with brand consistency.
-                        </p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🌐</div>
-                        <h3 class="feature-title">Conversion-Optimized Funnels</h3>
-                        <p class="feature-description">
-                            AI-generated landing pages with psychology-based copy optimization. Integrated Stripe payments with automated bump offers and A/B testing.
-                        </p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🤖</div>
-                        <h3 class="feature-title">Multi-Channel Automation</h3>
-                        <p class="feature-description">
-                            MCP + Rube.io integration for email, SMS, LinkedIn, and CRM automation. Personalized nurturing sequences with behavior-triggered follow-ups.
-                        </p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">📈</div>
-                        <h3 class="feature-title">Real-Time Analytics</h3>
-                        <p class="feature-description">
-                            LangSmith observability with complete workflow tracing. Performance analytics, success rates, ROI tracking, and custom dashboards.
-                        </p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🔗</div>
-                        <h3 class="feature-title">Affiliate System</h3>
-                        <p class="feature-description">
-                            UTM tracking and commission management. Automated affiliate link generation with real-time performance monitoring and payout calculations.
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Lead Recon Integration -->
-            <section class="integration-section">
-                <div class="container">
-                    <h2 class="section-title" style="color: #1e3a8a;">Lead Recon System Integration</h2>
-                    <div class="integration-content">
-                        <div class="integration-text">
-                            <h3>Seamless Lead Recon Workflow</h3>
-                            <p>
-                                PROFILER integrates directly with Lead Recon's existing infrastructure, 
-                                enhancing your lead generation capabilities with enterprise-grade AI automation.
-                            </p>
-                            <ul class="integration-features">
-                                <li>Direct integration with Lead Recon's lead database</li>
-                                <li>Automated lead scoring and qualification</li>
-                                <li>Custom presentation generation for each prospect</li>
-                                <li>Automated follow-up sequences and nurturing</li>
-                                <li>Real-time performance tracking and analytics</li>
-                                <li>Commission tracking and affiliate management</li>
-                            </ul>
-                        </div>
-                        <div class="integration-visual">
-                            <h4 style="margin-bottom: 1.5rem; color: #1e3a8a;">Automated Workflow</h4>
-                            <div class="workflow-step">
-                                <div class="step-number">1</div>
-                                <div class="step-content">
-                                    <div class="step-title">Lead Data Ingestion</div>
-                                    <div class="step-description">Import leads from Lead Recon system</div>
-                                </div>
-                            </div>
-                            <div class="workflow-step">
-                                <div class="step-number">2</div>
-                                <div class="step-content">
-                                    <div class="step-title">AI Analysis & Scoring</div>
-                                    <div class="step-description">GPT-4 powered qualification and segmentation</div>
-                                </div>
-                            </div>
-                            <div class="workflow-step">
-                                <div class="step-number">3</div>
-                                <div class="step-content">
-                                    <div class="step-title">Deck Generation</div>
-                                    <div class="step-description">Custom presentations via Google Slides or Gamma AI</div>
-                                </div>
-                            </div>
-                            <div class="workflow-step">
-                                <div class="step-number">4</div>
-                                <div class="step-content">
-                                    <div class="step-title">Funnel Creation</div>
-                                    <div class="step-description">Optimized landing pages and checkout flows</div>
-                                </div>
-                            </div>
-                            <div class="workflow-step">
-                                <div class="step-number">5</div>
-                                <div class="step-content">
-                                    <div class="step-title">Multi-Channel Outreach</div>
-                                    <div class="step-description">Automated email, SMS, and social campaigns</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Monaco Yacht Demo -->
-            <div class="monaco-highlight">
-                <h3>🛥️ Monaco Yacht Show Demo Ready</h3>
-                <p>
-                    PROFILER is specifically optimized for the luxury yacht industry, 
-                    ready to demonstrate $350M+ revenue impact at the Monaco Yacht Show.
-                </p>
+      <div class="container">
+        <!-- Core Features -->
+        <section class="section">
+          <h2 class="section-title">Enterprise-Grade Lead Intelligence</h2>
+          <div class="features-grid">
+            <div class="feature-card">
+              <div class="feature-icon">🧠</div>
+              <h3 class="feature-title">AI-Powered Lead Analysis</h3>
+              <p class="feature-description">
+                GPT-4 driven lead scoring, segmentation, and qualification.
+                Processes 50+ leads per batch with 95% accuracy in identifying
+                high-value prospects.
+              </p>
             </div>
+            <div class="feature-card">
+              <div class="feature-icon">📊</div>
+              <h3 class="feature-title">Multi-Provider Deck Generation</h3>
+              <p class="feature-description">
+                Automated presentation creation using Google Slides API and
+                Gamma AI. Generates customized decks in under 30 seconds with
+                brand consistency.
+              </p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🌐</div>
+              <h3 class="feature-title">Conversion-Optimized Funnels</h3>
+              <p class="feature-description">
+                AI-generated landing pages with psychology-based copy
+                optimization. Integrated Stripe payments with automated bump
+                offers and A/B testing.
+              </p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🤖</div>
+              <h3 class="feature-title">Multi-Channel Automation</h3>
+              <p class="feature-description">
+                MCP + Rube.io integration for email, SMS, LinkedIn, and CRM
+                automation. Personalized nurturing sequences with
+                behavior-triggered follow-ups.
+              </p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">📈</div>
+              <h3 class="feature-title">Real-Time Analytics</h3>
+              <p class="feature-description">
+                LangSmith observability with complete workflow tracing.
+                Performance analytics, success rates, ROI tracking, and custom
+                dashboards.
+              </p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🔗</div>
+              <h3 class="feature-title">Affiliate System</h3>
+              <p class="feature-description">
+                UTM tracking and commission management. Automated affiliate link
+                generation with real-time performance monitoring and payout
+                calculations.
+              </p>
+            </div>
+          </div>
+        </section>
 
-            <!-- API Endpoints -->
-            <section class="api-section">
-                <div class="container">
-                    <h2 class="section-title" style="color: white;">Enterprise API Endpoints</h2>
-                    <p style="text-align: center; font-size: 1.1rem; margin-bottom: 2rem; opacity: 0.9;">
-                        RESTful API with comprehensive lead processing capabilities
-                    </p>
-                    <div class="api-endpoints">
-                        <div class="api-endpoint">
-                            <div class="api-method method-get">GET</div>
-                            <div class="api-path">/health</div>
-                            <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8;">System health check</p>
-                        </div>
-                        <div class="api-endpoint">
-                            <div class="api-method method-get">GET</div>
-                            <div class="api-path">/api/status</div>
-                            <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8;">Service status and features</p>
-                        </div>
-                        <div class="api-endpoint">
-                            <div class="api-method method-post">POST</div>
-                            <div class="api-path">/api/run-event</div>
-                            <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8;">Process lead recon event</p>
-                        </div>
-                        <div class="api-endpoint">
-                            <div class="api-method method-post">POST</div>
-                            <div class="api-path">/api/leads/upload</div>
-                            <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8;">Batch lead upload</p>
-                        </div>
-                        <div class="api-endpoint">
-                            <div class="api-method method-get">GET</div>
-                            <div class="api-path">/api/analytics/:eventId</div>
-                            <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8;">Event analytics</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Demo Section -->
-            <section class="demo-section">
-                <h2 class="section-title">Ready to Transform Your Lead Generation?</h2>
-                <p style="font-size: 1.2rem; color: #6b7280; margin-bottom: 2rem;">
-                    Experience the power of AI-driven lead intelligence
+        <!-- Lead Recon Integration -->
+        <section class="integration-section">
+          <div class="container">
+            <h2 class="section-title" style="color: #1e3a8a">
+              Lead Recon System Integration
+            </h2>
+            <div class="integration-content">
+              <div class="integration-text">
+                <h3>Seamless Lead Recon Workflow</h3>
+                <p>
+                  PROFILER integrates directly with Lead Recon's existing
+                  infrastructure, enhancing your lead generation capabilities
+                  with enterprise-grade AI automation.
                 </p>
-                <a href="#demo" class="demo-button" onclick="runDemo()">
-                    <span id="demo-text">Run Live Demo</span>
-                    <span id="demo-loading" class="loading" style="display: none;"></span>
-                </a>
-            </section>
+                <ul class="integration-features">
+                  <li>Direct integration with Lead Recon's lead database</li>
+                  <li>Automated lead scoring and qualification</li>
+                  <li>Custom presentation generation for each prospect</li>
+                  <li>Automated follow-up sequences and nurturing</li>
+                  <li>Real-time performance tracking and analytics</li>
+                  <li>Commission tracking and affiliate management</li>
+                </ul>
+              </div>
+              <div class="integration-visual">
+                <h4 style="margin-bottom: 1.5rem; color: #1e3a8a">
+                  Automated Workflow
+                </h4>
+                <div class="workflow-step">
+                  <div class="step-number">1</div>
+                  <div class="step-content">
+                    <div class="step-title">Lead Data Ingestion</div>
+                    <div class="step-description">
+                      Import leads from Lead Recon system
+                    </div>
+                  </div>
+                </div>
+                <div class="workflow-step">
+                  <div class="step-number">2</div>
+                  <div class="step-content">
+                    <div class="step-title">AI Analysis & Scoring</div>
+                    <div class="step-description">
+                      GPT-4 powered qualification and segmentation
+                    </div>
+                  </div>
+                </div>
+                <div class="workflow-step">
+                  <div class="step-number">3</div>
+                  <div class="step-content">
+                    <div class="step-title">Deck Generation</div>
+                    <div class="step-description">
+                      Custom presentations via Google Slides or Gamma AI
+                    </div>
+                  </div>
+                </div>
+                <div class="workflow-step">
+                  <div class="step-number">4</div>
+                  <div class="step-content">
+                    <div class="step-title">Funnel Creation</div>
+                    <div class="step-description">
+                      Optimized landing pages and checkout flows
+                    </div>
+                  </div>
+                </div>
+                <div class="workflow-step">
+                  <div class="step-number">5</div>
+                  <div class="step-content">
+                    <div class="step-title">Multi-Channel Outreach</div>
+                    <div class="step-description">
+                      Automated email, SMS, and social campaigns
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Monaco Yacht Demo -->
+        <div class="monaco-highlight">
+          <h3>🛥️ Monaco Yacht Show Demo Ready</h3>
+          <p>
+            PROFILER is specifically optimized for the luxury yacht industry,
+            ready to demonstrate $350M+ revenue impact at the Monaco Yacht Show.
+          </p>
         </div>
+
+        <!-- API Endpoints -->
+        <section class="api-section">
+          <div class="container">
+            <h2 class="section-title" style="color: white">
+              Enterprise API Endpoints
+            </h2>
+            <p
+              style="
+                text-align: center;
+                font-size: 1.1rem;
+                margin-bottom: 2rem;
+                opacity: 0.9;
+              "
+            >
+              RESTful API with comprehensive lead processing capabilities
+            </p>
+            <div class="api-endpoints">
+              <div class="api-endpoint">
+                <div class="api-method method-get">GET</div>
+                <div class="api-path">/health</div>
+                <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8">
+                  System health check
+                </p>
+              </div>
+              <div class="api-endpoint">
+                <div class="api-method method-get">GET</div>
+                <div class="api-path">/api/status</div>
+                <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8">
+                  Service status and features
+                </p>
+              </div>
+              <div class="api-endpoint">
+                <div class="api-method method-post">POST</div>
+                <div class="api-path">/api/run-event</div>
+                <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8">
+                  Process lead recon event
+                </p>
+              </div>
+              <div class="api-endpoint">
+                <div class="api-method method-post">POST</div>
+                <div class="api-path">/api/leads/upload</div>
+                <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8">
+                  Batch lead upload
+                </p>
+              </div>
+              <div class="api-endpoint">
+                <div class="api-method method-get">GET</div>
+                <div class="api-path">/api/analytics/:eventId</div>
+                <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8">
+                  Event analytics
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Demo Section -->
+        <section class="demo-section">
+          <h2 class="section-title">
+            Ready to Transform Your Lead Generation?
+          </h2>
+          <p style="font-size: 1.2rem; color: #6b7280; margin-bottom: 2rem">
+            Experience the power of AI-driven lead intelligence
+          </p>
+          <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="#demo" class="demo-button" onclick="runDemo()">
+              <span id="demo-text">Run Live Demo</span>
+              <span
+                id="demo-loading"
+                class="loading"
+                style="display: none"
+              ></span>
+            </a>
+            <a href="/admin.html" class="demo-button" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+              🔧 Admin Dashboard
+            </a>
+          </div>
+        </section>
+      </div>
     </main>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h4>System Info</h4>
-                    <ul>
-                        <li>Node.js 22.12.0</li>
-                        <li>Cloudflare Pages</li>
-                        <li>275+ Edge Locations</li>
-                        <li>Enterprise SSL</li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Features</h4>
-                    <ul>
-                        <li>AI Lead Analysis</li>
-                        <li>Deck Generation</li>
-                        <li>Funnel Optimization</li>
-                        <li>Multi-Channel Automation</li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Performance</h4>
-                    <ul>
-                        <li>&lt;100ms Response Time</li>
-                        <li>99.99% Uptime SLA</li>
-                        <li>Global CDN</li>
-                        <li>Auto-scaling</li>
-                    </ul>
-                </div>
-            </div>
-            <div style="border-top: 1px solid #374151; padding-top: 2rem; margin-top: 2rem;">
-                <p>&copy; 2025 PROFILER - Enterprise AI Lead Intelligence Platform. Deployed at profiler.solutions</p>
-            </div>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>System Info</h4>
+            <ul>
+              <li>Node.js 22.12.0</li>
+              <li>Cloudflare Pages</li>
+              <li>275+ Edge Locations</li>
+              <li>Enterprise SSL</li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Features</h4>
+            <ul>
+              <li>AI Lead Analysis</li>
+              <li>Deck Generation</li>
+              <li>Funnel Optimization</li>
+              <li>Multi-Channel Automation</li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Performance</h4>
+            <ul>
+              <li>&lt;100ms Response Time</li>
+              <li>99.99% Uptime SLA</li>
+              <li>Global CDN</li>
+              <li>Auto-scaling</li>
+            </ul>
+          </div>
         </div>
+        <div
+          style="
+            border-top: 1px solid #374151;
+            padding-top: 2rem;
+            margin-top: 2rem;
+          "
+        >
+          <p>
+            &copy; 2025 PROFILER - Enterprise AI Lead Intelligence Platform.
+            Deployed at profiler.solutions
+          </p>
+        </div>
+      </div>
     </footer>
 
     <script>
-        async function runDemo() {
-            const demoText = document.getElementById('demo-text');
-            const demoLoading = document.getElementById('demo-loading');
-            
-            demoText.style.display = 'none';
-            demoLoading.style.display = 'inline-block';
-            
-            try {
-                const response = await fetch('/api/run-event', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        packet: {
-                            eventId: 'demo-' + Date.now(),
-                            industry: 'luxury-marine',
-                            host: { name: 'Demo User', commissionPct: 30 },
-                            audience: { industry: 'Luxury Yachts', size: 'enterprise' },
-                            offer: { tripwirePrice: 297, tripwireCredits: 1000 },
-                            assets: { deckProvider: 'gamma' }
-                        }
-                    })
-                });
-                
-                const result = await response.json();
-                
-                demoLoading.style.display = 'none';
-                demoText.style.display = 'inline';
-                
-                if (result.success) {
-                    alert('Demo completed successfully!\n\n' +
-                          'Leads Processed: ' + result.result.artifacts.profiler.totalLeads + '\n' +
-                          'High-Value Leads: ' + result.result.artifacts.profiler.highValueLeads + '\n' +
-                          'Average Score: ' + (result.result.artifacts.profiler.averageScore * 100).toFixed(1) + '%\n' +
-                          'Deck Generated: ' + (result.result.artifacts.deck.generated ? 'Yes' : 'No') + '\n' +
-                          'Funnel Created: ' + (result.result.artifacts.funnel.created ? 'Yes' : 'No'));
-                } else {
-                    alert('Demo completed with results: ' + JSON.stringify(result, null, 2));
-                }
-            } catch (error) {
-                demoLoading.style.display = 'none';
-                demoText.style.display = 'inline';
-                alert('Demo completed! Check the console for details.');
-                console.log('Demo result:', error);
-            }
+      async function runDemo() {
+        const demoText = document.getElementById("demo-text");
+        const demoLoading = document.getElementById("demo-loading");
+
+        demoText.style.display = "none";
+        demoLoading.style.display = "inline-block";
+
+        try {
+          const response = await fetch("/api/run-event", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              packet: {
+                eventId: "demo-" + Date.now(),
+                industry: "luxury-marine",
+                host: { name: "Demo User", commissionPct: 30 },
+                audience: { industry: "Luxury Yachts", size: "enterprise" },
+                offer: { tripwirePrice: 297, tripwireCredits: 1000 },
+                assets: { deckProvider: "gamma" },
+              },
+            }),
+          });
+
+          const result = await response.json();
+
+          demoLoading.style.display = "none";
+          demoText.style.display = "inline";
+
+          if (result.success) {
+            alert(
+              "Demo completed successfully!\n\n" +
+                "Leads Processed: " +
+                result.result.artifacts.profiler.totalLeads +
+                "\n" +
+                "High-Value Leads: " +
+                result.result.artifacts.profiler.highValueLeads +
+                "\n" +
+                "Average Score: " +
+                (result.result.artifacts.profiler.averageScore * 100).toFixed(
+                  1
+                ) +
+                "%\n" +
+                "Deck Generated: " +
+                (result.result.artifacts.deck.generated ? "Yes" : "No") +
+                "\n" +
+                "Funnel Created: " +
+                (result.result.artifacts.funnel.created ? "Yes" : "No")
+            );
+          } else {
+            alert(
+              "Demo completed with results: " + JSON.stringify(result, null, 2)
+            );
+          }
+        } catch (error) {
+          demoLoading.style.display = "none";
+          demoText.style.display = "inline";
+          alert("Demo completed! Check the console for details.");
+          console.log("Demo result:", error);
         }
+      }
     </script>
-</body>
+  </body>
 </html>

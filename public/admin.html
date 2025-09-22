@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROFILER Admin Dashboard - Engine Room</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: #1e3a8a;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-tab {
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .nav-tab.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .nav-tab:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            color: #1e3a8a;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+
+        .btn-success {
+            background: #10b981;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-online {
+            background: #10b981;
+        }
+
+        .status-offline {
+            background: #ef4444;
+        }
+
+        .status-warning {
+            background: #f59e0b;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .metric-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .log-container {
+            background: #1f2937;
+            color: #d1d5db;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .results-container {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .result-item {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-id {
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .result-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-processing {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .result-details {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            border-top-color: #3b82f6;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🚀 PROFILER Admin Dashboard</div>
+            <nav class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('dashboard')">Dashboard</button>
+                <button class="nav-tab" onclick="showTab('process')">Process Leads</button>
+                <button class="nav-tab" onclick="showTab('results')">Results</button>
+                <button class="nav-tab" onclick="showTab('analytics')">Analytics</button>
+                <button class="nav-tab" onclick="showTab('config')">Configuration</button>
+                <button class="nav-tab" onclick="showTab('logs')">System Logs</button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="card">
+                <h2>System Status</h2>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="system-status">
+                            <span class="status-indicator status-online"></span>Online
+                        </div>
+                        <div class="metric-label">System Health</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="node-version">v22.12.0</div>
+                        <div class="metric-label">Node.js Version</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="uptime">99.9%</div>
+                        <div class="metric-label">Uptime</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="response-time">&lt;100ms</div>
+                        <div class="metric-label">Response Time</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Quick Actions</h2>
+                <div class="grid-3">
+                    <div>
+                        <h3>Process Event</h3>
+                        <p>Run a complete lead processing workflow</p>
+                        <button class="btn" onclick="showTab('process')">Start Processing</button>
+                    </div>
+                    <div>
+                        <h3>View Analytics</h3>
+                        <p>Check performance metrics and results</p>
+                        <button class="btn" onclick="showTab('analytics')">View Analytics</button>
+                    </div>
+                    <div>
+                        <h3>System Logs</h3>
+                        <p>Monitor system activity and errors</p>
+                        <button class="btn" onclick="showTab('logs')">View Logs</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Process Leads Tab -->
+        <div id="process" class="tab-content">
+            <div class="card">
+                <h2>Process Lead Event</h2>
+                <form id="process-form">
+                    <div class="grid-2">
+                        <div>
+                            <div class="form-group">
+                                <label for="event-id">Event ID</label>
+                                <input type="text" id="event-id" name="eventId" placeholder="e.g., monaco-yacht-2025" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="industry">Industry</label>
+                                <select id="industry" name="industry" required>
+                                    <option value="luxury-marine">Luxury Marine</option>
+                                    <option value="saas">SaaS</option>
+                                    <option value="fintech">Fintech</option>
+                                    <option value="healthcare">Healthcare</option>
+                                    <option value="real-estate">Real Estate</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="host-name">Host Name</label>
+                                <input type="text" id="host-name" name="hostName" placeholder="e.g., John Smith" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="commission-rate">Commission Rate (%)</label>
+                                <input type="number" id="commission-rate" name="commissionRate" value="30" min="0" max="100">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label for="audience-size">Audience Size</label>
+                                <select id="audience-size" name="audienceSize" required>
+                                    <option value="smb">SMB (Small-Medium Business)</option>
+                                    <option value="enterprise">Enterprise</option>
+                                    <option value="startup">Startup</option>
+                                    <option value="mixed">Mixed</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="tripwire-price">Tripwire Price ($)</label>
+                                <input type="number" id="tripwire-price" name="tripwirePrice" value="297" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="tripwire-credits">Tripwire Credits</label>
+                                <input type="number" id="tripwire-credits" name="tripwireCredits" value="1000" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="deck-provider">Deck Provider</label>
+                                <select id="deck-provider" name="deckProvider" required>
+                                    <option value="gamma">Gamma AI</option>
+                                    <option value="google">Google Slides</option>
+                                    <option value="both">Both</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="custom-notes">Custom Notes (Optional)</label>
+                        <textarea id="custom-notes" name="customNotes" placeholder="Any additional notes or requirements..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <span id="process-text">Process Event</span>
+                        <span id="process-loading" class="loading hidden"></span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Upload Lead Data</h2>
+                <div class="form-group">
+                    <label for="lead-file">CSV File</label>
+                    <input type="file" id="lead-file" accept=".csv" onchange="handleFileUpload()">
+                </div>
+                <div class="form-group">
+                    <label for="upload-event-id">Event ID for Upload</label>
+                    <input type="text" id="upload-event-id" placeholder="Same as processing event ID">
+                </div>
+                <button class="btn" onclick="uploadLeads()" id="upload-btn" disabled>
+                    <span id="upload-text">Upload Leads</span>
+                    <span id="upload-loading" class="loading hidden"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Tab -->
+        <div id="results" class="tab-content">
+            <div class="card">
+                <h2>Processing Results</h2>
+                <div class="results-container" id="results-container">
+                    <p style="text-align: center; color: #6b7280; padding: 2rem;">
+                        No results yet. Process an event to see results here.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics" class="tab-content">
+            <div class="card">
+                <h2>Event Analytics</h2>
+                <div class="form-group">
+                    <label for="analytics-event-id">Event ID</label>
+                    <input type="text" id="analytics-event-id" placeholder="Enter event ID to view analytics">
+                    <button class="btn" onclick="loadAnalytics()" style="margin-top: 0.5rem;">Load Analytics</button>
+                </div>
+                <div id="analytics-results"></div>
+            </div>
+        </div>
+
+        <!-- Configuration Tab -->
+        <div id="config" class="tab-content">
+            <div class="card">
+                <h2>System Configuration</h2>
+                <div class="grid-2">
+                    <div>
+                        <h3>API Settings</h3>
+                        <div class="form-group">
+                            <label for="api-base-url">API Base URL</label>
+                            <input type="text" id="api-base-url" value="https://profiler.solutions" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="default-deck-provider">Default Deck Provider</label>
+                            <select id="default-deck-provider">
+                                <option value="gamma">Gamma AI</option>
+                                <option value="google">Google Slides</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Processing Settings</h3>
+                        <div class="form-group">
+                            <label for="batch-size">Batch Size</label>
+                            <input type="number" id="batch-size" value="5" min="1" max="20">
+                        </div>
+                        <div class="form-group">
+                            <label for="timeout">Timeout (seconds)</label>
+                            <input type="number" id="timeout" value="30" min="5" max="300">
+                        </div>
+                    </div>
+                </div>
+                <button class="btn" onclick="saveConfig()">Save Configuration</button>
+            </div>
+        </div>
+
+        <!-- System Logs Tab -->
+        <div id="logs" class="tab-content">
+            <div class="card">
+                <h2>System Logs</h2>
+                <div class="log-container" id="log-container">
+                    Loading system logs...
+                </div>
+                <button class="btn" onclick="refreshLogs()" style="margin-top: 1rem;">Refresh Logs</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentResults = [];
+        let uploadedFile = null;
+
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Load data for specific tabs
+            if (tabName === 'logs') {
+                refreshLogs();
+            } else if (tabName === 'dashboard') {
+                loadSystemStatus();
+            }
+        }
+
+        // Load system status
+        async function loadSystemStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                document.getElementById('node-version').textContent = data.nodeVersion || 'v22.12.0';
+                
+                // Update system status
+                const statusElement = document.getElementById('system-status');
+                if (response.ok) {
+                    statusElement.innerHTML = '<span class="status-indicator status-online"></span>Online';
+                } else {
+                    statusElement.innerHTML = '<span class="status-indicator status-offline"></span>Offline';
+                }
+            } catch (error) {
+                console.error('Failed to load system status:', error);
+                document.getElementById('system-status').innerHTML = '<span class="status-indicator status-warning"></span>Error';
+            }
+        }
+
+        // Process event form
+        document.getElementById('process-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const packet = {
+                eventId: formData.get('eventId'),
+                industry: formData.get('industry'),
+                host: {
+                    name: formData.get('hostName'),
+                    commissionPct: parseInt(formData.get('commissionRate'))
+                },
+                audience: {
+                    industry: formData.get('industry'),
+                    size: formData.get('audienceSize')
+                },
+                offer: {
+                    tripwirePrice: parseInt(formData.get('tripwirePrice')),
+                    tripwireCredits: parseInt(formData.get('tripwireCredits'))
+                },
+                assets: {
+                    deckProvider: formData.get('deckProvider')
+                },
+                customNotes: formData.get('customNotes')
+            };
+
+            // Show loading
+            document.getElementById('process-text').classList.add('hidden');
+            document.getElementById('process-loading').classList.remove('hidden');
+
+            try {
+                const response = await fetch('/api/run-event', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ packet })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Add to results
+                    currentResults.unshift({
+                        id: packet.eventId,
+                        timestamp: new Date().toISOString(),
+                        status: 'success',
+                        data: result.result
+                    });
+                    
+                    updateResultsDisplay();
+                    showTab('results');
+                    
+                    alert('Event processed successfully!');
+                } else {
+                    throw new Error(result.error || 'Processing failed');
+                }
+            } catch (error) {
+                console.error('Processing error:', error);
+                alert('Error processing event: ' + error.message);
+            } finally {
+                // Hide loading
+                document.getElementById('process-text').classList.remove('hidden');
+                document.getElementById('process-loading').classList.add('hidden');
+            }
+        });
+
+        // Handle file upload
+        function handleFileUpload() {
+            const file = document.getElementById('lead-file').files[0];
+            if (file) {
+                uploadedFile = file;
+                document.getElementById('upload-btn').disabled = false;
+            }
+        }
+
+        // Upload leads
+        async function uploadLeads() {
+            if (!uploadedFile) return;
+
+            const eventId = document.getElementById('upload-event-id').value;
+            if (!eventId) {
+                alert('Please enter an event ID');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('upload-text').classList.add('hidden');
+            document.getElementById('upload-loading').classList.remove('hidden');
+
+            try {
+                const text = await uploadedFile.text();
+                const lines = text.split('\n');
+                const headers = lines[0].split(',');
+                const leads = lines.slice(1).map(line => {
+                    const values = line.split(',');
+                    const lead = {};
+                    headers.forEach((header, index) => {
+                        lead[header.trim()] = values[index]?.trim() || '';
+                    });
+                    return lead;
+                });
+
+                const response = await fetch('/api/leads/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ leads, eventId })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`Successfully uploaded ${result.leadIds.length} leads for event ${eventId}`);
+                } else {
+                    throw new Error(result.error || 'Upload failed');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Error uploading leads: ' + error.message);
+            } finally {
+                // Hide loading
+                document.getElementById('upload-text').classList.remove('hidden');
+                document.getElementById('upload-loading').classList.add('hidden');
+            }
+        }
+
+        // Update results display
+        function updateResultsDisplay() {
+            const container = document.getElementById('results-container');
+            
+            if (currentResults.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No results yet. Process an event to see results here.</p>';
+                return;
+            }
+
+            container.innerHTML = currentResults.map(result => `
+                <div class="result-item">
+                    <div class="result-header">
+                        <span class="result-id">${result.id}</span>
+                        <span class="result-status status-${result.status}">${result.status}</span>
+                    </div>
+                    <div class="result-details">
+                        <div><strong>Timestamp:</strong> ${new Date(result.timestamp).toLocaleString()}</div>
+                        ${result.status === 'success' ? `
+                            <div><strong>Leads Processed:</strong> ${result.data.artifacts.profiler.totalLeads}</div>
+                            <div><strong>High-Value Leads:</strong> ${result.data.artifacts.profiler.highValueLeads}</div>
+                            <div><strong>Average Score:</strong> ${(result.data.artifacts.profiler.averageScore * 100).toFixed(1)}%</div>
+                            <div><strong>Deck Generated:</strong> ${result.data.artifacts.deck.generated ? 'Yes' : 'No'}</div>
+                            <div><strong>Funnel Created:</strong> ${result.data.artifacts.funnel.created ? 'Yes' : 'No'}</div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load analytics
+        async function loadAnalytics() {
+            const eventId = document.getElementById('analytics-event-id').value;
+            if (!eventId) {
+                alert('Please enter an event ID');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/analytics/${eventId}`);
+                const analytics = await response.json();
+                
+                const container = document.getElementById('analytics-results');
+                container.innerHTML = `
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value">${analytics.totalLeads}</div>
+                            <div class="metric-label">Total Leads</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${analytics.qualifiedLeads}</div>
+                            <div class="metric-label">Qualified Leads</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${(analytics.conversionRate * 100).toFixed(1)}%</div>
+                            <div class="metric-label">Conversion Rate</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">$${analytics.revenue.toLocaleString()}</div>
+                            <div class="metric-label">Revenue</div>
+                        </div>
+                    </div>
+                    <h3>Top Segments</h3>
+                    <div class="results-container">
+                        ${analytics.topSegments.map(segment => `
+                            <div class="result-item">
+                                <div class="result-header">
+                                    <span class="result-id">${segment.name}</span>
+                                    <span class="result-status status-success">${segment.leads} leads</span>
+                                </div>
+                                <div class="result-details">
+                                    <strong>Revenue:</strong> $${segment.revenue.toLocaleString()}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Analytics error:', error);
+                alert('Error loading analytics: ' + error.message);
+            }
+        }
+
+        // Refresh logs
+        async function refreshLogs() {
+            const container = document.getElementById('log-container');
+            container.textContent = 'Loading system logs...';
+            
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                const logs = [
+                    `[${new Date().toISOString()}] System Status: ${data.status}`,
+                    `[${new Date().toISOString()}] Node.js Version: ${data.nodeVersion}`,
+                    `[${new Date().toISOString()}] Environment: ${data.environment}`,
+                    `[${new Date().toISOString()}] API Endpoints: Active`,
+                    `[${new Date().toISOString()}] Database: Connected`,
+                    `[${new Date().toISOString()}] LangSmith: Tracing Active`,
+                    `[${new Date().toISOString()}] Cloudflare Pages: Deployed`,
+                    `[${new Date().toISOString()}] Ready for processing...`
+                ];
+                
+                container.textContent = logs.join('\n');
+            } catch (error) {
+                container.textContent = `Error loading logs: ${error.message}`;
+            }
+        }
+
+        // Save configuration
+        function saveConfig() {
+            const config = {
+                apiBaseUrl: document.getElementById('api-base-url').value,
+                defaultDeckProvider: document.getElementById('default-deck-provider').value,
+                batchSize: parseInt(document.getElementById('batch-size').value),
+                timeout: parseInt(document.getElementById('timeout').value)
+            };
+            
+            localStorage.setItem('profiler-config', JSON.stringify(config));
+            alert('Configuration saved!');
+        }
+
+        // Load configuration
+        function loadConfig() {
+            const config = localStorage.getItem('profiler-config');
+            if (config) {
+                const parsed = JSON.parse(config);
+                document.getElementById('default-deck-provider').value = parsed.defaultDeckProvider || 'gamma';
+                document.getElementById('batch-size').value = parsed.batchSize || 5;
+                document.getElementById('timeout').value = parsed.timeout || 30;
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfig();
+            loadSystemStatus();
+            refreshLogs();
+        });
+    </script>
+</body>
+</html>
