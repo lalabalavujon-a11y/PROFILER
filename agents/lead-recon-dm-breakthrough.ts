@@ -7,6 +7,7 @@ import { logAgentExecution } from "../lib/langsmith-config";
 const schema = z.object({
   packet: z.any(),
   artifacts: z.any().default({}),
+  errors: z.array(z.string()).default([]),
 });
 
 type LeadReconDMBreakthroughState = z.infer<typeof schema>;

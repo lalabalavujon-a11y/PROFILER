@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { NextRequest } from "next/server";
 
 // Input validation schemas for each agent
 export const ProfilerInputSchema = z.object({
@@ -259,7 +258,7 @@ class RateLimitStore {
 
 // Authentication and authorization
 export class AuthGuard {
-  static validateApiKey(request: NextRequest): boolean {
+  static validateApiKey(request: any): boolean {
     const apiKey =
       request.headers.get("x-api-key") || request.headers.get("authorization");
 
@@ -272,7 +271,7 @@ export class AuthGuard {
     return validApiKeys.includes(apiKey.replace("Bearer ", ""));
   }
 
-  static getClientId(request: NextRequest): string | null {
+  static getClientId(request: any): string | null {
     const clientId = request.headers.get("x-client-id");
     return clientId || null;
   }
@@ -375,18 +374,12 @@ export class ErrorHandler {
     // this.sendToLoggingService(errorInfo);
   }
 
-  static createErrorResponse(message: string, status: number = 400): Response {
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: message,
-        timestamp: new Date().toISOString(),
-      }),
-      {
-        status,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+  static createErrorResponse(message: string, status: number = 400): { success: false; error: string; status: number } {
+    return {
+      success: false,
+      error: message,
+      status,
+    };
   }
 
   private static sanitizeContext(context: any): any {
@@ -401,10 +394,10 @@ export class ErrorHandler {
 
 // Main guardrail function
 export async function applyGuardrails<T>(
-  request: NextRequest,
+  request: any,
   agentType: string,
   schema: z.ZodSchema<T>
-): Promise<{ success: true; data: T; clientId: string } | Response> {
+): Promise<{ success: true; data: T; clientId: string } | { success: false; error: string; status: number }> {
   try {
     // 1. Authentication
     if (!AuthGuard.validateApiKey(request)) {
@@ -450,7 +443,10 @@ export async function applyGuardrails<T>(
     );
 
     if (!validationResult.success) {
-      return ErrorHandler.createErrorResponse(validationResult.error, 400);
+      return ErrorHandler.createErrorResponse(
+        'error' in validationResult ? validationResult.error : 'Validation failed',
+        400
+      );
     }
 
     return {
