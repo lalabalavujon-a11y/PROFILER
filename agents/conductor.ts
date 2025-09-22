@@ -8,6 +8,11 @@ import { affiliateNode } from "./affiliate";
 import { outreachNode } from "./outreach";
 import { followupNode } from "./followup";
 import { analyticsTap } from "./analytics";
+import { leadReconProfilerNode } from "./lead-recon-profiler";
+import { leadReconStrategistNode } from "./lead-recon-strategist";
+import { leadReconDMBreakthroughNode } from "./lead-recon-dm-breakthrough";
+import { leadReconContentCreatorNode } from "./lead-recon-content-creator";
+import { leadReconPromptWizardNode } from "./lead-recon-prompt-wizard";
 import { flags } from "../lib/flags";
 
 export const EventState = z.object({
@@ -26,11 +31,16 @@ export function buildGraph() {
       artifacts: null,
       approvals: null,
       errors: null,
-    }
+    },
   });
 
   g.addNode("analyticsTap", analyticsTap);
   g.addNode("profiler", profilerNode);
+  g.addNode("leadReconProfiler", leadReconProfilerNode);
+  g.addNode("leadReconStrategist", leadReconStrategistNode);
+  g.addNode("leadReconDMBreakthrough", leadReconDMBreakthroughNode);
+  g.addNode("leadReconContentCreator", leadReconContentCreatorNode);
+  g.addNode("leadReconPromptWizard", leadReconPromptWizardNode);
   g.addNode("deck_google", deckGoogleNode);
   g.addNode("deck_gamma", deckGammaNode);
   g.addNode("funnel", funnelNode);
@@ -40,48 +50,74 @@ export function buildGraph() {
 
   g.addEdge(START, "analyticsTap");
   g.addEdge(START, "profiler");
+  g.addEdge(START, "leadReconProfiler");
+  g.addEdge(START, "leadReconStrategist");
+  g.addEdge(START, "leadReconDMBreakthrough");
+  g.addEdge(START, "leadReconContentCreator");
+  g.addEdge(START, "leadReconPromptWizard");
 
-  g.addConditionalEdges("profiler", (state: EventStateType) => {
-    let provider = state.packet?.assets?.deckProvider ?? flags.defaultDeckProvider ?? "google";
+  g.addConditionalEdges(
+    "profiler",
+    (state: EventStateType) => {
+      let provider =
+        state.packet?.assets?.deckProvider ??
+        flags.defaultDeckProvider ??
+        "google";
 
-    if (!flags.gammaEnabled) {
-      if (provider === "gamma" || provider === "both") {
-        provider = "google";
+      if (!flags.gammaEnabled) {
+        if (provider === "gamma" || provider === "both") {
+          provider = "google";
+        }
       }
-    }
 
-    if (provider === "both") return ["deck_google", "deck_gamma"];
-    if (provider === "gamma") return ["deck_gamma"];
-    return ["deck_google"];
-  }, {
-    "deck_google": "deck_google",
-    "deck_gamma": "deck_gamma",
-    "both": "deck_google"
-  });
-
-  g.addConditionalEdges("deck_google", (state: EventStateType) => {
-    const provider = state.packet?.assets?.deckProvider ?? flags.defaultDeckProvider ?? "google";
-    const both = flags.gammaEnabled && provider === "both";
-    if (both && !state.artifacts?.deck?.providers?.gamma) {
-      return [];
+      if (provider === "both") return ["deck_google", "deck_gamma"];
+      if (provider === "gamma") return ["deck_gamma"];
+      return ["deck_google"];
+    },
+    {
+      deck_google: "deck_google",
+      deck_gamma: "deck_gamma",
+      both: "deck_google",
     }
-    return ["funnel"];
-  }, {
-    "funnel": "funnel",
-    "wait": "deck_gamma"
-  });
+  );
 
-  g.addConditionalEdges("deck_gamma", (state: EventStateType) => {
-    const provider = state.packet?.assets?.deckProvider ?? flags.defaultDeckProvider ?? "google";
-    const both = flags.gammaEnabled && provider === "both";
-    if (both && !state.artifacts?.deck?.providers?.google) {
-      return [];
+  g.addConditionalEdges(
+    "deck_google",
+    (state: EventStateType) => {
+      const provider =
+        state.packet?.assets?.deckProvider ??
+        flags.defaultDeckProvider ??
+        "google";
+      const both = flags.gammaEnabled && provider === "both";
+      if (both && !state.artifacts?.deck?.providers?.gamma) {
+        return [];
+      }
+      return ["funnel"];
+    },
+    {
+      funnel: "funnel",
+      wait: "deck_gamma",
     }
-    return ["funnel"];
-  }, {
-    "funnel": "funnel",
-    "wait": "deck_google"
-  });
+  );
+
+  g.addConditionalEdges(
+    "deck_gamma",
+    (state: EventStateType) => {
+      const provider =
+        state.packet?.assets?.deckProvider ??
+        flags.defaultDeckProvider ??
+        "google";
+      const both = flags.gammaEnabled && provider === "both";
+      if (both && !state.artifacts?.deck?.providers?.google) {
+        return [];
+      }
+      return ["funnel"];
+    },
+    {
+      funnel: "funnel",
+      wait: "deck_google",
+    }
+  );
 
   g.addEdge("funnel", "affiliate");
   g.addEdge("affiliate", "outreach");
