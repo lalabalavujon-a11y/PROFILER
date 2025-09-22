@@ -27,9 +27,10 @@ Go to: https://dash.cloudflare.com
 Project name: profiler-lead-recon
 Production branch: main
 Framework preset: None
-Build command: (leave empty)
+Build command: pnpm install && pnpm build
 Build output directory: dist
 Root directory: (leave empty)
+Node.js version: 22.12.0
 ```
 
 ### 4. Environment Variables

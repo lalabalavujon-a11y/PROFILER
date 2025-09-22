@@ -18,6 +18,8 @@
     "check-node": "node --version && echo 'Node.js version check passed'",
     "preinstall": "node scripts/check-node-version.js",
     "setup": "node scripts/setup-node.js",
+    "setup-node22": "./scripts/setup-node22.sh",
+    "verify-node22": "node scripts/verify-node22.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio"
